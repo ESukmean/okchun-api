@@ -2,6 +2,7 @@ package stream.okchun.dashboard.database.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,7 @@ import java.time.OffsetDateTime;
 @Table(name = "v_api_key_org_roles", schema = "public")
 public class VApiKeyOrgRole {
 	@Column(name = "mapping_id")
+	@Id
 	private Long mappingId;
 
 	@Column(name = "api_key_id")
