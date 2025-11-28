@@ -4,8 +4,21 @@ FROM arm64v8/openjdk:25-jdk
 RUN microdnf install findutils
 
 WORKDIR /app
-COPY . .
-RUN ./gradlew bootjar
+
+# Copy only Gradle wrapper and build scripts to enable caching
+COPY gradlew gradlew
+COPY gradle gradle
+COPY build.gradle settings.gradle ./
+
+# Pre-warm Gradle (downloads dependencies once and caches)
+RUN --mount=type=cache,target=/root/.gradle \
+    ./gradlew --no-daemon build -x test || true
+
+
+COPY src src
+RUN --mount=type=cache,target=/root/.gradle \
+    ./gradlew bootJar --no-daemon
+
 
 RUN cp ./build/libs/*.jar /app/web.jar
 
