@@ -1,15 +1,25 @@
 package stream.okchun.dashboard.controller.account;
 
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import stream.okchun.dashboard.application.AccountApplication;
+import stream.okchun.dashboard.dto.HttpClientInformation;
+import stream.okchun.dashboard.dto.account.RegisterRequest;
+import stream.okchun.dashboard.service.AccountService;
 
 @RestController
 @RequestMapping("/v1/account")
+@RequiredArgsConstructor
 public class AccountController {
+	private final AccountApplication application;
 
-    // Core auth
+	// Core auth
     @PostMapping("/register")
-    public String register(@RequestBody Object body) {
-        return "Register successful";
+    public String register(@RequestBody RegisterRequest registerRequest, HttpServletRequest httpReq) {
+		application.register(registerRequest, HttpClientInformation.of(httpReq));
+		return "OK";
     }
 
     @PostMapping("/login")

@@ -1,14 +1,34 @@
 package stream.okchun.dashboard.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import stream.okchun.dashboard.config.RustResult;
+import stream.okchun.dashboard.database.entity.auth.User;
+import stream.okchun.dashboard.database.repos.auth.UserRepository;
+import stream.okchun.dashboard.dto.HttpClientInformation;
+import stream.okchun.dashboard.dto.account.RegisterRequest;
+import stream.okchun.dashboard.exception.auth.RegisterException;
 
+import java.util.TimeZone;
+
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class AccountService {
+	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
 
-    // Core auth
-    public Object register(Object body) {
-        return "Account registered";
-    }
+    public boolean register(RegisterRequest data, HttpClientInformation client) throws RegisterException {
+		User user = new User(null, passwordEncoder.encode(data.password()), data.name(),
+				data.locale().orElse(client.locale().toString()), TimeZone.getDefault().getDisplayName(), null, null, null,
+				null);
+
+		RustResult<User> result = RustResult.wrap(() -> userRepository.save(user));
+		log.debug("insert = {}", result.getException());
+		return result.isOk();
+	}
 
     public Object login(Object body) {
         return "User logged in";

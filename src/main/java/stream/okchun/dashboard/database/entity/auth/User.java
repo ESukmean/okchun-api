@@ -1,9 +1,14 @@
 package stream.okchun.dashboard.database.entity.auth;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import stream.okchun.dashboard.dto.HttpClientInformation;
+import stream.okchun.dashboard.dto.account.RegisterRequest;
+import stream.okchun.dashboard.exception.auth.RegisterException;
 
 import java.time.OffsetDateTime;
 
@@ -11,6 +16,8 @@ import java.time.OffsetDateTime;
 @Setter
 @Entity
 @Table(name = "users", schema = "auth")
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,5 +50,4 @@ public class User {
 	@ColumnDefault("now()")
 	@Column(name = "updated_at", nullable = false)
 	private OffsetDateTime updatedAt;
-
 }
