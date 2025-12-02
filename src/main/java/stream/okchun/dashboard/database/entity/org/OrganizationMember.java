@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import stream.okchun.dashboard.database.entity.auth.ApiKey;
 import stream.okchun.dashboard.database.entity.auth.User;
 
 import java.time.OffsetDateTime;
@@ -45,6 +46,10 @@ public class OrganizationMember {
 	@Column(name = "updated_at", nullable = false)
 	private OffsetDateTime updatedAt;
 
+
+	@JoinColumn(name = "api_key_id", nullable = false)
+	@OneToOne(fetch = FetchType.EAGER, optional = false)
+	private ApiKey apiKey;
 /*
  TODO [Reverse Engineering] create field to map the 'role' column
  Available actions: Define target Java type | Uncomment as is | Remove column mapping

@@ -26,10 +26,6 @@ public class ApiKey {
 	@Column(name = "key", nullable = false, length = 48)
 	private String key;
 
-	@Column(name = "type", columnDefinition = "api_key_type not null")
-	@Enumerated(EnumType.STRING)
-	private ApiKeyType type;
-
 	@Column(name = "subject_type", columnDefinition = "api_key_subject_type not null")
 	@Enumerated(EnumType.STRING)
 	private ApiKeySubjectType subjectType;

@@ -1,5 +1,7 @@
 package stream.okchun.dashboard.service;
 
+import jakarta.annotation.Nullable;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,6 +11,7 @@ import stream.okchun.dashboard.database.entity.auth.User;
 import stream.okchun.dashboard.database.repos.auth.UserRepository;
 import stream.okchun.dashboard.dto.HttpClientInformation;
 import stream.okchun.dashboard.dto.account.RegisterRequest;
+import stream.okchun.dashboard.exception.auth.LoginException;
 import stream.okchun.dashboard.exception.auth.RegisterException;
 
 import java.util.TimeZone;
@@ -21,17 +24,31 @@ public class AccountService {
 	private final PasswordEncoder passwordEncoder;
 
     public boolean register(RegisterRequest data, HttpClientInformation client) throws RegisterException {
-		User user = new User(null, passwordEncoder.encode(data.password()), data.name(),
-				data.locale().orElse(client.locale().toString()), TimeZone.getDefault().getDisplayName(), null, null, null,
+		User user = new User(null, passwordEncoder.encode(data.password()), data.email(), data.name(),
+				data.locale().orElse(client.locale().toString()), TimeZone.getDefault().getID(), null, null,
+				null,
 				null);
 
 		RustResult<User> result = RustResult.wrap(() -> userRepository.save(user));
-		log.debug("insert = {}", result.getException());
 		return result.isOk();
 	}
 
-    public Object login(Object body) {
-        return "User logged in";
+    public @NonNull User login(String email, String password) throws LoginException {
+        var user_result = RustResult.wrap(() -> this.userRepository.findByEmail(email));
+		if (user_result.isErr()) {
+			throw LoginException.UNKNOWN();
+		}
+
+		var user = user_result.getOrDefault(null);
+		if (user == null) {
+			throw LoginException.NO_ACCOUNT_FOUND();
+		}
+
+		if (this.passwordEncoder.matches(password, user.getPasswordHash())) {
+			return user;
+		}
+
+		throw LoginException.PASSWORD_INCORRECT();
     }
 
     public Object logout() {

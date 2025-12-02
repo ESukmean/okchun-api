@@ -1,9 +1,21 @@
 package stream.okchun.dashboard.service;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import stream.okchun.dashboard.database.entity.org.Organization;
+import stream.okchun.dashboard.database.entity.org.OrganizationMember;
+import stream.okchun.dashboard.database.repos.org.OrganizationMemberRepository;
+import stream.okchun.dashboard.database.repos.org.OrganizationRepository;
+
+import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class OrganizationService {
+	private final OrganizationRepository organizationRepository;
+	private final OrganizationMemberRepository organizationMemberRepository;
+
 
     // Organization CRUD
     public Object createOrganization(Object body) {
@@ -27,6 +39,9 @@ public class OrganizationService {
     }
 
     // Members & roles
+	public List<OrganizationMember> listOrganizationOfUser(@NonNull Long userId) {
+		return organizationMemberRepository.findAllByUserId(userId);
+	}
     public Object listMembers(String orgId, String search, String cursor) {
         return "List of members for " + orgId;
     }

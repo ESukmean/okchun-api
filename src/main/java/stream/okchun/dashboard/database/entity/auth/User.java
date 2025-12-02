@@ -6,9 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-import stream.okchun.dashboard.dto.HttpClientInformation;
-import stream.okchun.dashboard.dto.account.RegisterRequest;
-import stream.okchun.dashboard.exception.auth.RegisterException;
 
 import java.time.OffsetDateTime;
 
@@ -27,7 +24,10 @@ public class User {
 	@Column(name = "password_hash", nullable = false, length = Integer.MAX_VALUE)
 	private String passwordHash;
 
-	@Column(name = "name", length = Integer.MAX_VALUE)
+	@Column(name = "email", length = Integer.MAX_VALUE, nullable = false)
+	private String email;
+
+	@Column(name = "name", length = 16, nullable = false)
 	private String name;
 
 	@Column(name = "locale", length = 16)
@@ -50,4 +50,19 @@ public class User {
 	@ColumnDefault("now()")
 	@Column(name = "updated_at", nullable = false)
 	private OffsetDateTime updatedAt;
+
+	@PrePersist
+	protected void onCreate() {
+		// Set both to the current time zone aware time
+		createdAt = OffsetDateTime.now();
+		updatedAt = OffsetDateTime.now();
+	}
+
+	/**
+	 * Set the update timestamp before the entity is updated.
+	 */
+	@PreUpdate
+	protected void onUpdate() {
+		updatedAt = OffsetDateTime.now();
+	}
 }
