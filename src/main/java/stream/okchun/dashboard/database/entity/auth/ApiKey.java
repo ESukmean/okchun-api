@@ -1,9 +1,15 @@
 package stream.okchun.dashboard.database.entity.auth;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.annotations.Type;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
+import stream.okchun.dashboard.database.entity.org.Organization;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -17,6 +23,9 @@ import java.util.List;
 }, uniqueConstraints = {
 		@UniqueConstraint(name = "api_keys_key_key", columnNames = {"key"})
 })
+
+@AllArgsConstructor
+@NoArgsConstructor
 public class ApiKey {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,8 +35,9 @@ public class ApiKey {
 	@Column(name = "key", nullable = false, length = 48)
 	private String key;
 
-	@Column(name = "subject_type", columnDefinition = "api_key_subject_type not null")
-	@Enumerated(EnumType.STRING)
+	@Column(name = "subject_type", columnDefinition = "api_key_subject_type")
+	@Enumerated
+	@JdbcType(PostgreSQLEnumJdbcType.class)
 	private ApiKeySubjectType subjectType;
 
 	@Column(name = "subject_id", nullable = false)
@@ -54,4 +64,20 @@ public class ApiKey {
 	private OffsetDateTime createdAt;
 	@Column(name = "notes", length = Integer.MAX_VALUE)
 	private String notes;
+
+	@JoinColumn(name = "org_pk")
+	@ManyToOne
+	private Organization org;
+
+
+	@PrePersist
+	public void prePersist() {
+		this.createdAt = OffsetDateTime.now();
+		this.lastUsedAt = OffsetDateTime.now();
+	}
+
+	@PreUpdate
+	public void preUpdate() {
+		this.lastUsedAt = OffsetDateTime.now();
+	}
 }

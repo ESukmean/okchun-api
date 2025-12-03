@@ -1,25 +1,69 @@
 package stream.okchun.dashboard.controller.organization;
 
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import stream.okchun.dashboard.application.OrganizationApplication;
+import stream.okchun.dashboard.config.RustResult;
+import stream.okchun.dashboard.dto.GlobalResponse;
+import stream.okchun.dashboard.dto.account.LoginResponse;
+import stream.okchun.dashboard.dto.account.MyOrganizationInfo;
+import stream.okchun.dashboard.dto.organization.CreateOrganizationRequest;
+import stream.okchun.dashboard.dto.organization.DetailedOrganizationInfo;
+import stream.okchun.dashboard.exception.OkchunSuperException;
+import stream.okchun.dashboard.exception.org.OrganizationException;
+import stream.okchun.dashboard.service.AccountService;
+import stream.okchun.dashboard.service.ApiKeyService;
+
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/v1/organizations")
+@RequiredArgsConstructor
 public class OrganizationController {
+	private final OrganizationApplication orgApplication;
+	private final AccountService accountService;
+	private final ApiKeyService apiKeyService;
 
     // Organization CRUD
     @PostMapping
-    public String createOrganization(@RequestBody Object body) {
-        return "Organization created";
-    }
+    public GlobalResponse<MyOrganizationInfo> createOrganization(@RequestBody CreateOrganizationRequest body,
+																 HttpServletRequest req) {
+		var user = accountService.getHttpSessionUser();
 
-    @GetMapping
-    public String listOrganizations() {
-        return "List of organizations";
+		var api_key_result = RustResult.wrap(() -> orgApplication.createOrganization(body.org_id(),
+				body.name(),
+				user.userId()));
+		if (api_key_result.isErr()) {
+			if (api_key_result.getException() instanceof OkchunSuperException ex) {
+				throw ex;
+			}
+			throw OrganizationException.UNKNOWN();
+		}
+
+		var api_key = api_key_result.getOrDefault(null);
+		if (api_key == null) {
+			throw OrganizationException.UNKNOWN();
+		}
+
+		// 세션에 추가 처리
+		var org_info = new MyOrganizationInfo(api_key, body.org_id(), body.name());
+		LoginResponse loginSessionData = (LoginResponse)req.getSession().getAttribute("user");
+		var organizationInfos = new ArrayList<>(loginSessionData.organizations());
+		organizationInfos.add(org_info);
+
+		// immutableList로 다시 변환
+		loginSessionData.setOrganizations(organizationInfos.stream().toList());
+		req.getSession().setAttribute("user", loginSessionData);
+
+		return new GlobalResponse<>(true, org_info);
     }
 
     @GetMapping("/{org_id}")
-    public String getOrganizationDetail(@PathVariable("org_id") String orgId) {
-        return "Organization detail for " + orgId;
+    public GlobalResponse<DetailedOrganizationInfo> getOrganizationDetail(@PathVariable("org_id") String orgId) {
+		var key = apiKeyService.getHttpRequestApiKey();
+		var org_data = orgApplication.getOrganizationByApiKey(key);
+		return GlobalResponse.success(org_data);
     }
 
     @PatchMapping("/{org_id}")

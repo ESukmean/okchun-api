@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import stream.okchun.dashboard.database.entity.org.Organization;
 
 import java.time.OffsetDateTime;
@@ -39,6 +41,12 @@ public class Channel {
 	@Column(name = "tags", nullable = false)
 	private List<String> tags;
 
+	@ColumnDefault("'ACTIVE'")
+	@Column(name = "state", columnDefinition = "channel_state_type not null")
+	@Enumerated
+	@JdbcType(PostgreSQLEnumJdbcType.class)
+	private ChannelStateType state;
+
 	@Column(name = "archived_at")
 	private OffsetDateTime archivedAt;
 
@@ -52,8 +60,5 @@ public class Channel {
 /*
  TODO [Reverse Engineering] create field to map the 'state' column
  Available actions: Define target Java type | Uncomment as is | Remove column mapping
-    @ColumnDefault("'ACTIVE'")
-    @Column(name = "state", columnDefinition = "channel_state_type not null")
-    private Object state;
 */
 }

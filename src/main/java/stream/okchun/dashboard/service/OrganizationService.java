@@ -3,10 +3,15 @@ package stream.okchun.dashboard.service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import stream.okchun.dashboard.config.RustResult;
+import stream.okchun.dashboard.database.entity.auth.ApiKey;
+import stream.okchun.dashboard.database.entity.auth.User;
 import stream.okchun.dashboard.database.entity.org.Organization;
 import stream.okchun.dashboard.database.entity.org.OrganizationMember;
+import stream.okchun.dashboard.database.entity.org.OrganizationMemberRole;
 import stream.okchun.dashboard.database.repos.org.OrganizationMemberRepository;
 import stream.okchun.dashboard.database.repos.org.OrganizationRepository;
+import stream.okchun.dashboard.exception.org.OrganizationException;
 
 import java.util.List;
 
@@ -16,10 +21,29 @@ public class OrganizationService {
 	private final OrganizationRepository organizationRepository;
 	private final OrganizationMemberRepository organizationMemberRepository;
 
-
     // Organization CRUD
-    public Object createOrganization(Object body) {
-        return "Organization created";
+    public Organization createOrganization(String org_id, String org_name, User owner) throws OrganizationException {
+		if (!org_id.matches("^[a-zA-Z0-9_\\-]*$") || org_id.length() > 16 || org_id.isEmpty()) {
+			throw OrganizationException.BAD_ORG_ID();
+		}
+
+		org_name = org_name.trim();
+		if (org_name.length() > 16 || org_name.isEmpty()) {
+			throw OrganizationException.BAD_ORG_NAME();
+		}
+
+        Organization organization = new Organization(null, org_name, owner, null, null, null, null, org_id);
+		RustResult<Organization> org_result =
+				RustResult.wrap(() -> organizationRepository.save(organization));
+
+
+		if (org_result.isErr()) {
+			if (org_result.getException().getMessage().contains("duplicate key value")) {
+				throw OrganizationException.DUPLICATED_ORG_ID();
+			}
+		}
+
+		return org_result.getOrDefault(null);
     }
 
     public Object listOrganizations() {
@@ -46,8 +70,9 @@ public class OrganizationService {
         return "List of members for " + orgId;
     }
 
-    public Object addMember(String orgId, Object body) {
-        return "Member added to " + orgId;
+    public OrganizationMember addMember(Organization org, User user, ApiKey apiKey, OrganizationMemberRole role) {
+		OrganizationMember member =  new OrganizationMember(null, org, user, role, true, null, null, apiKey);
+		return organizationMemberRepository.save(member);
     }
 
     public Object changeMemberRole(String orgId, String memberId, Object body) {

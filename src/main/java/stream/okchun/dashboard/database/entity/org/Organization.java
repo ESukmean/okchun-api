@@ -1,9 +1,12 @@
 package stream.okchun.dashboard.database.entity.org;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.processing.Pattern;
 import stream.okchun.dashboard.database.entity.auth.User;
 
 import java.time.OffsetDateTime;
@@ -14,6 +17,8 @@ import java.time.OffsetDateTime;
 @Table(name = "organizations", schema = "org", indexes = {
 		@Index(name = "idx_organizations_owner", columnList = "owner_user_id")
 })
+@AllArgsConstructor
+@NoArgsConstructor
 public class Organization {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,4 +46,17 @@ public class Organization {
 	@Column(name = "updated_at", nullable = false)
 	private OffsetDateTime updatedAt;
 
+	@Column(name = "org_id", nullable = false, length = 16)
+	private String orgId;
+
+	@PrePersist
+	public void prePersist() {
+		this.createdAt = OffsetDateTime.now();
+		this.updatedAt = OffsetDateTime.now();
+	}
+
+	@PreUpdate
+	public void preUpdate() {
+		this.updatedAt = OffsetDateTime.now();
+	}
 }

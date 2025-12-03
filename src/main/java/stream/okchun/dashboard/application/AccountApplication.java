@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import stream.okchun.dashboard.database.entity.auth.User;
+import stream.okchun.dashboard.dto.GlobalResponse;
 import stream.okchun.dashboard.dto.HttpClientInformation;
 import stream.okchun.dashboard.dto.account.LoginRequest;
 import stream.okchun.dashboard.dto.account.LoginResponse;
@@ -36,7 +37,8 @@ public class AccountApplication {
 
 		var org = orgService.listOrganizationOfUser(user.getId());
 
-		return LoginResponse.of(user.getName(), TimeZone.getTimeZone(user.getTimeZone()),
+		return LoginResponse.of(user.getId(), user.getName(),
+				TimeZone.getTimeZone(user.getTimeZone()),
 				StringUtils.parseLocaleString(user.getLocale()), org);
 	}
 }

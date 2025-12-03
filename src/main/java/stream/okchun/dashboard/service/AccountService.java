@@ -1,15 +1,19 @@
 package stream.okchun.dashboard.service;
 
-import jakarta.annotation.Nullable;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import stream.okchun.dashboard.config.RustResult;
 import stream.okchun.dashboard.database.entity.auth.User;
 import stream.okchun.dashboard.database.repos.auth.UserRepository;
 import stream.okchun.dashboard.dto.HttpClientInformation;
+import stream.okchun.dashboard.dto.account.LoginResponse;
 import stream.okchun.dashboard.dto.account.RegisterRequest;
 import stream.okchun.dashboard.exception.auth.LoginException;
 import stream.okchun.dashboard.exception.auth.RegisterException;
@@ -55,9 +59,24 @@ public class AccountService {
         return "User logged out";
     }
 
-    public Object refreshToken() {
-        return "Token refreshed";
-    }
+    public @NonNull LoginResponse getHttpSessionUser() throws LoginException {
+		RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+		if (requestAttributes instanceof ServletRequestAttributes) {
+			HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
+			var session = request.getSession(false);
+			if (session == null) {
+				throw LoginException.NOT_LOGGED_IN();
+			}
+
+			var user = session.getAttribute("user");
+			if (user == null) {
+				throw LoginException.NOT_LOGGED_IN();
+			}
+
+			return (LoginResponse) user;
+		}
+		throw LoginException.NOT_LOGGED_IN();
+	}
 
     // Email & password
     public Object requestVerifyEmail() {
@@ -76,10 +95,6 @@ public class AccountService {
         return "Password reset confirmed";
     }
 
-    // Profile / multi-org
-    public Object getMyProfile() {
-        return "User profile details";
-    }
 
     public Object updateMyProfile(Object body) {
         return "Profile updated";

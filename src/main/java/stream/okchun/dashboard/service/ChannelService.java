@@ -1,17 +1,28 @@
 package stream.okchun.dashboard.service;
 
+import jakarta.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import stream.okchun.dashboard.database.entity.media.Channel;
+import stream.okchun.dashboard.database.entity.media.ChannelStateType;
+import stream.okchun.dashboard.database.repos.media.ChannelRepository;
+
+import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ChannelService {
+	private final ChannelRepository channelRepository;
 
     // Channels
     public Object createChannel(String orgId, Object body) {
         return "Channel created for organization " + orgId;
     }
 
-    public Object listChannels(String orgId, String search, String state, String cursor) {
-        return "List of channels for organization " + orgId;
+	/// @param state : null, on, off
+    public List<Channel> listChannels(long orgFk, @Nullable String search, @Nullable ChannelStateType state,
+									  @Nullable Integer cursor) {
+		return channelRepository.searchAllByOrg(orgFk, search, state, cursor);
     }
 
     public Object getChannelDetail(String orgId, String channelId) {

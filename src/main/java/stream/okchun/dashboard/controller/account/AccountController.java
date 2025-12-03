@@ -10,12 +10,14 @@ import stream.okchun.dashboard.dto.account.LoginRequest;
 import stream.okchun.dashboard.dto.account.LoginResponse;
 import stream.okchun.dashboard.dto.account.RegisterRequest;
 import stream.okchun.dashboard.exception.auth.RegisterException;
+import stream.okchun.dashboard.service.AccountService;
 
 @RestController
 @RequestMapping("/v1/account")
 @RequiredArgsConstructor
 public class AccountController {
 	private final AccountApplication application;
+	private final AccountService accountService;
 
 	// Core auth
 	@PostMapping("/register")
@@ -31,17 +33,20 @@ public class AccountController {
 
 	@PostMapping("/login")
 	public GlobalResponse<LoginResponse> login(@RequestBody LoginRequest body, HttpServletRequest httpReq) {
-		return new GlobalResponse<>(true, application.login(body, HttpClientInformation.of(httpReq)));
+		var login = application.login(body, HttpClientInformation.of(httpReq));
+		httpReq.getSession().setAttribute("user", login);
+
+		return new GlobalResponse<>(true, login);
 	}
 
 	@PostMapping("/logout")
-	public String logout() {
-		return "Logout successful";
-	}
+	public void logout(HttpServletRequest httpReq) {
+		var session = httpReq.getSession(false);
+		if (session == null) {
+			return;
+		}
 
-	@PostMapping("/token/refresh")
-	public String refreshToken() {
-		return "Token refreshed";
+		session.removeAttribute("user");
 	}
 
 	// Email & password
@@ -67,8 +72,8 @@ public class AccountController {
 
 	// Profile / multi-org
 	@GetMapping("/me")
-	public String getMyProfile() {
-		return "My profile details";
+	public GlobalResponse<LoginResponse> getMyProfile() {
+		return GlobalResponse.success(accountService.getHttpSessionUser());
 	}
 
 	@PatchMapping("/me")

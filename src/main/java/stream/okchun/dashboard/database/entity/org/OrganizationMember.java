@@ -1,11 +1,15 @@
 package stream.okchun.dashboard.database.entity.org;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import stream.okchun.dashboard.database.entity.auth.ApiKey;
 import stream.okchun.dashboard.database.entity.auth.User;
 
@@ -19,6 +23,8 @@ import java.time.OffsetDateTime;
 		@Index(name = "idx_org_members_org", columnList = "org_id"),
 		@Index(name = "idx_org_members_user", columnList = "user_id")
 })
+@NoArgsConstructor
+@AllArgsConstructor
 public class OrganizationMember {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +41,11 @@ public class OrganizationMember {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
+	@Column(name = "role", columnDefinition = "org_member_role not null")
+	@Enumerated
+	@JdbcType(PostgreSQLEnumJdbcType.class)
+	private OrganizationMemberRole role;
+
 	@ColumnDefault("true")
 	@Column(name = "is_active", nullable = false)
 	private Boolean isActive = false;
@@ -50,10 +61,15 @@ public class OrganizationMember {
 	@JoinColumn(name = "api_key_id", nullable = false)
 	@OneToOne(fetch = FetchType.EAGER, optional = false)
 	private ApiKey apiKey;
-/*
- TODO [Reverse Engineering] create field to map the 'role' column
- Available actions: Define target Java type | Uncomment as is | Remove column mapping
-    @Column(name = "role", columnDefinition = "org_member_role not null")
-    private Object role;
-*/
+
+	@PrePersist
+	public void prePersist() {
+		createdAt = OffsetDateTime.now();
+		updatedAt = OffsetDateTime.now();
+	}
+
+	@PreUpdate
+	public void preUpdate() {
+		updatedAt = OffsetDateTime.now();
+	}
 }

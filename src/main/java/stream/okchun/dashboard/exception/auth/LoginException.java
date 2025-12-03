@@ -13,10 +13,16 @@ public class LoginException extends OkchunSuperException {
 				OkchunSuperException.EMPTY_PARAM);
 	}
 	public static LoginException PASSWORD_INCORRECT() {
-		return new LoginException(HttpStatus.BAD_REQUEST, "ACC_NO_FOUND", OkchunSuperException.EMPTY_PARAM);
+		return new LoginException(HttpStatus.BAD_REQUEST, "ACC_PASSWORD_INCORRECT",
+				OkchunSuperException.EMPTY_PARAM);
 	}
 
 	public static LoginException UNKNOWN() {
 		return new LoginException(HttpStatus.BAD_REQUEST, "UNKNOWN", OkchunSuperException.EMPTY_PARAM);
+	}
+
+	public static LoginException NOT_LOGGED_IN() {
+		return new LoginException(HttpStatus.BAD_REQUEST, "LOGIN_NOT_LOGGED",
+				OkchunSuperException.EMPTY_PARAM);
 	}
 }

@@ -47,6 +47,7 @@ dependencies {
     implementation 'org.springframework.security:spring-security-core:7.0.0'
     implementation 'tools.jackson.core:jackson-core:3.0.3'
     implementation 'tools.jackson.core:jackson-databind:3.0.3'
+    implementation 'io.hypersistence:hypersistence-utils-hibernate-71:3.13.1'
 
     // --- QueryDSL ---
     implementation "com.querydsl:querydsl-jpa:${querydslVersion}:jakarta"
