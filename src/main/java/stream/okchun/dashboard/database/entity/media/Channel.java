@@ -57,8 +57,8 @@ public class Channel {
 	@Column(name = "updated_at", nullable = false)
 	private OffsetDateTime updatedAt;
 
-/*
- TODO [Reverse Engineering] create field to map the 'state' column
- Available actions: Define target Java type | Uncomment as is | Remove column mapping
-*/
+	@JoinColumn(name = "latest_session", nullable = true)
+	@OneToOne
+	private ChannelSession latest_session;
+
 }

@@ -48,6 +48,11 @@ dependencies {
     implementation 'tools.jackson.core:jackson-core:3.0.3'
     implementation 'tools.jackson.core:jackson-databind:3.0.3'
     implementation 'io.hypersistence:hypersistence-utils-hibernate-71:3.13.1'
+    annotationProcessor "org.mapstruct:mapstruct-processor:1.6.3"
+    implementation "org.mapstruct:mapstruct:1.6.3"
+
+    annotationProcessor "org.mapstruct.extensions.spring:mapstruct-spring-annotations:2.0.0"
+    implementation "org.mapstruct.extensions.spring:mapstruct-spring-extensions:2.0.0"
 
     // --- QueryDSL ---
     implementation "com.querydsl:querydsl-jpa:${querydslVersion}:jakarta"

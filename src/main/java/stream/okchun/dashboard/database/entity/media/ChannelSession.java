@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import org.hibernate.annotations.OnDeleteAction;
 import stream.okchun.dashboard.database.entity.auth.User;
 import stream.okchun.dashboard.database.entity.infra.Pool;
@@ -26,7 +27,6 @@ public class ChannelSession {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JoinColumn(name = "channel_id", nullable = false)
 	private Channel channel;
 
@@ -64,11 +64,9 @@ public class ChannelSession {
 	@Column(name = "updated_at", nullable = false)
 	private OffsetDateTime updatedAt;
 
-/*
- TODO [Reverse Engineering] create field to map the 'state' column
- Available actions: Define target Java type | Uncomment as is | Remove column mapping
-    @ColumnDefault("'LIVE'")
-    @Column(name = "state", columnDefinition = "session_state_type not null")
-    private Object state;
-*/
+	@ColumnDefault("'LIVE'")
+	@Column(name = "state", columnDefinition = "session_state_type not null")
+	@Enumerated(EnumType.STRING)
+	@JdbcType(PostgreSQLEnumJdbcType.class)
+	private ChannelSessionType state;
 }

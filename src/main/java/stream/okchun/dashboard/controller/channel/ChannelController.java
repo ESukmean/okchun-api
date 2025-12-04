@@ -1,23 +1,55 @@
 package stream.okchun.dashboard.controller.channel;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import stream.okchun.dashboard.application.OrganizationApplication;
+import stream.okchun.dashboard.database.entity.media.ChannelStateType;
+import stream.okchun.dashboard.dto.GlobalResponse;
+import stream.okchun.dashboard.dto.channel.ChannelResponse;
+import stream.okchun.dashboard.service.AccountService;
+import stream.okchun.dashboard.service.ApiKeyService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1")
+@RequiredArgsConstructor
 public class ChannelController {
+	private final OrganizationApplication orgApplication;
+	private final AccountService accountService;
+	private final ApiKeyService apiKeyService;
 
     // Channels
     @PostMapping("/organizations/{org_id}/channels")
     public String createChannel(@PathVariable("org_id") String orgId, @RequestBody Object body) {
-        return "Channel created for organization " + orgId;
+		return "create channel";
     }
 
     @GetMapping("/organizations/{org_id}/channels")
-    public String listChannels(@PathVariable("org_id") String orgId,
-                               @RequestParam(required = false) String search,
-                               @RequestParam(required = false) String state,
-                               @RequestParam(required = false) String cursor) {
-        return "List of channels for organization " + orgId;
+    public GlobalResponse<List<ChannelResponse>> listChannels(@PathVariable("org_id") String orgId,
+															  @RequestParam(required = false) String search,
+															  @RequestParam(required = false) String state,
+															  @RequestParam(required = false) Integer cursor) {
+		var key = apiKeyService.getHttpRequestApiKey();
+		ChannelStateType channel_state = null;
+
+		if (state != null) {
+			switch (state) {
+				case "ACTIVE":
+					channel_state = ChannelStateType.ACTIVE;
+					break;
+
+				case "ARCHIVED":
+					channel_state = ChannelStateType.ARCHIVED;
+					break;
+
+				default:
+					break;
+			}
+		}
+
+		var org_data = orgApplication.listChannelsByApiKey(key, search, channel_state, cursor);
+		return GlobalResponse.success(org_data);
     }
 
     @GetMapping("/organizations/{org_id}/channels/{channel_id}")

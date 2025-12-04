@@ -8,6 +8,7 @@ import stream.okchun.dashboard.config.RustResult;
 import stream.okchun.dashboard.dto.GlobalResponse;
 import stream.okchun.dashboard.dto.account.LoginResponse;
 import stream.okchun.dashboard.dto.account.MyOrganizationInfo;
+import stream.okchun.dashboard.dto.channel.ChannelResponse;
 import stream.okchun.dashboard.dto.organization.CreateOrganizationRequest;
 import stream.okchun.dashboard.dto.organization.DetailedOrganizationInfo;
 import stream.okchun.dashboard.exception.OkchunSuperException;
@@ -16,6 +17,7 @@ import stream.okchun.dashboard.service.AccountService;
 import stream.okchun.dashboard.service.ApiKeyService;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/organizations")
