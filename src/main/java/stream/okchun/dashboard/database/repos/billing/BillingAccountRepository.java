@@ -7,4 +7,5 @@ import stream.okchun.dashboard.database.entity.billing.BillingAccount;
 
 @Repository
 public interface BillingAccountRepository extends CrudRepository<@NonNull BillingAccount, @NonNull Long>, BillingAccountRepositoryCustom {
+	BillingAccount findByAccountTypeAndAccountRef(String AccountType, long AccountRef);
 }

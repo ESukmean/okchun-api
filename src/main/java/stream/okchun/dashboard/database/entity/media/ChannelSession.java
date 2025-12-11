@@ -1,8 +1,7 @@
 package stream.okchun.dashboard.database.entity.media;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
@@ -20,6 +19,9 @@ import java.util.UUID;
 		@Index(name = "idx_sessions_channel_state", columnList = "channel_id, state"),
 		@Index(name = "idx_sessions_channel_time", columnList = "channel_id, started_at")
 })
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChannelSession {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -69,4 +71,15 @@ public class ChannelSession {
 	@Enumerated(EnumType.STRING)
 	@JdbcType(PostgreSQLEnumJdbcType.class)
 	private ChannelSessionType state;
+
+	@PrePersist
+	public void prePersist() {
+		this.createdAt = OffsetDateTime.now();
+		this.updatedAt = OffsetDateTime.now();
+	}
+
+	@PreUpdate
+	public void preUpdate() {
+		this.updatedAt = OffsetDateTime.now();
+	}
 }

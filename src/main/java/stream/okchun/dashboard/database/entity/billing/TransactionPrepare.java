@@ -1,8 +1,8 @@
 package stream.okchun.dashboard.database.entity.billing;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.Transaction;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -13,6 +13,9 @@ import java.time.Instant;
 @Setter
 @Entity
 @Table(name = "transaction_prepare", schema = "billing")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TransactionPrepare {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,8 +28,8 @@ public class TransactionPrepare {
 	@Column(name = "tx_name", nullable = false)
 	private String txName;
 
-	@Column(name = "tx_comment", length = Integer.MAX_VALUE)
-	private String txComment;
+	@Column(name = "tx_prep_log", length = Integer.MAX_VALUE)
+	private String txPrepLog;
 
 	@Column(name = "status", nullable = false, length = 3)
 	private String status;
@@ -44,5 +47,14 @@ public class TransactionPrepare {
 	@JoinColumn(name = "issued_by", nullable = false)
 	private BillingAccount issuedBy;
 
+	@PrePersist
+	public void prePersist() {
+		this.createdAt = Instant.now();
+		this.updatedAt = Instant.now();
+	}
 
+	@PreUpdate
+	public void preUpdate() {
+		this.updatedAt = Instant.now();
+	}
 }

@@ -1,8 +1,7 @@
 package stream.okchun.dashboard.database.entity.media;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.OnDelete;
@@ -19,6 +18,9 @@ import java.util.Map;
 		@Index(name = "idx_extensions_channel_type", columnList = "channel_id, type"),
 		@Index(name = "idx_extensions_channel", columnList = "channel_id")
 })
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChannelExtension {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,4 +54,14 @@ public class ChannelExtension {
 	@Column(name = "updated_at", nullable = false)
 	private OffsetDateTime updatedAt;
 
+	@PrePersist
+	public void prePersist() {
+		this.createdAt = OffsetDateTime.now();
+		this.updatedAt = OffsetDateTime.now();
+	}
+
+	@PreUpdate
+	public void preUpdate() {
+		this.updatedAt = OffsetDateTime.now();
+	}
 }

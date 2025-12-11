@@ -1,8 +1,7 @@
 package stream.okchun.dashboard.database.entity.billing;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
@@ -13,6 +12,9 @@ import java.time.Instant;
 @Entity
 @Table(name = "billing_account", schema = "billing", indexes = {@Index(name = "billing_account_type_idx",
 		columnList = "account_type, account_ref")})
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class BillingAccount {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,5 +48,14 @@ public class BillingAccount {
 	@Column(name = "updated", nullable = false)
 	private Instant updated;
 
+	@PrePersist
+	public void prePersist() {
+		this.created = Instant.now();
+		this.updated = Instant.now();
+	}
 
+	@PreUpdate
+	public void preUpdate() {
+		this.updated = Instant.now();
+	}
 }

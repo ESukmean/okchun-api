@@ -1,7 +1,9 @@
 package stream.okchun.dashboard.database.entity.billing;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
@@ -14,6 +16,8 @@ import java.time.Instant;
 @Setter
 @Entity
 @Table(name = "ledger_entry", schema = "billing")
+@NoArgsConstructor
+@AllArgsConstructor
 public class LedgerEntry {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,5 +56,8 @@ public class LedgerEntry {
 	@Column(name = "log")
 	private String log;
 
-
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@OnDelete(action = OnDeleteAction.RESTRICT)
+	@JoinColumn(name = "entry_link", nullable = false)
+	private LedgerEntryLink entryLink;
 }

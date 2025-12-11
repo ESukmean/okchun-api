@@ -1,8 +1,7 @@
 package stream.okchun.dashboard.database.entity.org;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -19,6 +18,9 @@ import java.time.OffsetDateTime;
 }, uniqueConstraints = {
 		@UniqueConstraint(name = "organization_invites_code_key", columnNames = {"code"})
 })
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class OrganizationInvite {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,17 +51,27 @@ public class OrganizationInvite {
 	@Column(name = "updated_at", nullable = false)
 	private OffsetDateTime updatedAt;
 
-/*
- TODO [Reverse Engineering] create field to map the 'role' column
- Available actions: Define target Java type | Uncomment as is | Remove column mapping
-    @Column(name = "role", columnDefinition = "org_member_role not null")
-    private Object role;
-*/
-/*
- TODO [Reverse Engineering] create field to map the 'status' column
- Available actions: Define target Java type | Uncomment as is | Remove column mapping
-    @ColumnDefault("'PENDING'")
-    @Column(name = "status", columnDefinition = "invite_status_type not null")
-    private Object status;
-*/
+	/*
+	 TODO [Reverse Engineering] create field to map the 'role' column
+	 Available actions: Define target Java type | Uncomment as is | Remove column mapping
+	    @Column(name = "role", columnDefinition = "org_member_role not null")
+	    private Object role;
+	*/
+	/*
+	 TODO [Reverse Engineering] create field to map the 'status' column
+	 Available actions: Define target Java type | Uncomment as is | Remove column mapping
+	    @ColumnDefault("'PENDING'")
+	    @Column(name = "status", columnDefinition = "invite_status_type not null")
+	    private Object status;
+	*/
+	@PrePersist
+	public void prePersist() {
+		this.createdAt = OffsetDateTime.now();
+		this.updatedAt = OffsetDateTime.now();
+	}
+
+	@PreUpdate
+	public void preUpdate() {
+		this.updatedAt = OffsetDateTime.now();
+	}
 }

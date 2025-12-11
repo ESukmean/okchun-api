@@ -1,8 +1,7 @@
 package stream.okchun.dashboard.database.entity.media;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.OnDelete;
@@ -20,6 +19,9 @@ import java.util.List;
 		@Index(name = "idx_channels_org_name", columnList = "org_id, name"),
 		@Index(name = "idx_channels_org_state", columnList = "org_id, state")
 })
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Channel {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,4 +63,14 @@ public class Channel {
 	@OneToOne
 	private ChannelSession latest_session;
 
+	@PrePersist
+	public void prePersist() {
+		this.createdAt = OffsetDateTime.now();
+		this.updatedAt = OffsetDateTime.now();
+	}
+
+	@PreUpdate
+	public void preUpdate() {
+		this.updatedAt = OffsetDateTime.now();
+	}
 }
