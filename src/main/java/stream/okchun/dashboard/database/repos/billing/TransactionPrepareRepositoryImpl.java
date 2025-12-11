@@ -6,12 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class OrgCreditLedgerRepositoryImpl implements OrgCreditLedgerRepositoryCustom {
+public class TransactionPrepareRepositoryImpl implements TransactionPrepareRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
     @Autowired
-    public OrgCreditLedgerRepositoryImpl(EntityManager entityManager) {
+    public TransactionPrepareRepositoryImpl(EntityManager entityManager) {
         this.queryFactory = new JPAQueryFactory(entityManager);
     }
 }

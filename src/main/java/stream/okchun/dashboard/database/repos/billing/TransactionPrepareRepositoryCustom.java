@@ -1,4 +1,4 @@
 package stream.okchun.dashboard.database.repos.billing;
 
-public interface OrgCreditAccountRepositoryCustom {
+public interface TransactionPrepareRepositoryCustom {
 }

@@ -6,12 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class OrgCreditTopupRepositoryImpl implements OrgCreditTopupRepositoryCustom {
+public class WebhookEventRepositoryImpl implements WebhookEventRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
     @Autowired
-    public OrgCreditTopupRepositoryImpl(EntityManager entityManager) {
+    public WebhookEventRepositoryImpl(EntityManager entityManager) {
         this.queryFactory = new JPAQueryFactory(entityManager);
     }
 }
