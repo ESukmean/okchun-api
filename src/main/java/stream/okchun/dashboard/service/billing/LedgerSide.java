@@ -1,5 +1,5 @@
 package stream.okchun.dashboard.service.billing;
 
-public enum LedgerTreeType {
+public enum LedgerSide {
 	ROOT
 }

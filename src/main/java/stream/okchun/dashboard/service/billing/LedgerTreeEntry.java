@@ -1,10 +1,8 @@
 package stream.okchun.dashboard.service.billing;
 
-import jakarta.persistence.EntityManager;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import stream.okchun.dashboard.database.entity.billing.LedgerEntry;
 import stream.okchun.dashboard.database.entity.billing.LedgerEntryLink;
 import stream.okchun.dashboard.database.entity.billing.Transaction;
@@ -25,18 +23,16 @@ public class LedgerTreeEntry {
 	@Getter
 	private final TransactionPrepare prep;
 	@Getter
+	private final ArrayList<LedgerTreeEntry> ledgerTreeEntries;
+	@Getter
+	private final ArrayList<LedgerEntry> ledgerEntries;
+	@Getter
 	LedgerTreeType link_type;
 	@Getter
 	@Setter
 	String comment;
 	@Getter
-	String side;
-	@Getter
-	@Setter
-	private ArrayList<LedgerTreeEntry> ledgerTreeEntries;
-	@Getter
-	@Setter
-	private ArrayList<LedgerEntry> ledgerEntries;
+	LedgerSide side;
 	@Getter
 	@Setter
 	private Transaction tx;
@@ -44,18 +40,21 @@ public class LedgerTreeEntry {
 	private LedgerEntryLink dbLinkEntity;
 
 
-	public LedgerTreeEntry(TransactionPrepare prep, @Nullable LedgerTreeEntry parent, String side) {
+	// root 생성시 사용
+	public LedgerTreeEntry(TransactionPrepare prep, @Nullable LedgerTreeEntry parent, LedgerSide side) {
 		this.parent = parent;
 		this.prep = prep;
 		this.side = side;
+		this.link_type = LedgerTreeType.ROOT;
 
 		ledgerTreeEntries = new ArrayList<>();
 		ledgerEntries = new ArrayList<>();
 
 	}
 
-	public LedgerTreeEntry(TransactionPrepare prep, @Nullable LedgerTreeEntry parent,
-						   LedgerTreeType link_type, String comment) {
+	// 내부 생성시 사용
+	private LedgerTreeEntry(TransactionPrepare prep, @Nullable LedgerTreeEntry parent,
+							@NonNull LedgerTreeType link_type, @Nullable String comment) {
 		this.parent = parent;
 		this.prep = prep;
 		ledgerTreeEntries = new ArrayList<>();
@@ -67,7 +66,7 @@ public class LedgerTreeEntry {
 
 
 	public LedgerTreeEntry createSubTree(LedgerTreeType link_type, String comment) {
-		var tree = new LedgerTreeEntry(this.prep, this.parent, link_type, comment);
+		var tree = new LedgerTreeEntry(this.prep, this, link_type, comment);
 		ledgerTreeEntries.add(tree);
 
 		return tree;
@@ -77,7 +76,9 @@ public class LedgerTreeEntry {
 		ledgerEntries.add(ledgerEntry);
 	}
 
-	/// 좌변 우변 검증용. 변의 총 합을 구함
+	/// 좌변 우변 검증용. 변의 총 합을 구함.
+	/// LedgerTreeEntity를 가지고 있는 Transaction에서 CreditRoot, DebitRoot가 있고, 각각 root를 가르킴
+	/// 위쪽에서 creditRoot.calculateSum() == debitRoot.calculateSum()로 검증 해야 함.
 	public BigDecimal calculateSum() {
 		BigDecimal sum = BigDecimal.ZERO;
 		for (LedgerEntry ledgerEntry : ledgerEntries) {
@@ -100,35 +101,67 @@ public class LedgerTreeEntry {
 	}
 
 	/// DB에 Tree 구조를 저장함. Tree 구조를 저장한 뒤에 실제 LedgerEntry를 저장 해야함.
-	private void commitTree(EntityManager em, LedgerEntryLinkRepository repo) {
-		var parent = this.parent != null ? this.parent.dbLinkEntity : null;
+	private void commitTree(Transaction tx, LedgerEntryLinkRepository repo) {
+		this.tx = tx;
+		LedgerEntryLink parent_link = null;
+		if (this.parent != null) {
+			// root가 아니면 다 root거로 설정 받아옴
+			this.tx = parent.tx;
+			this.side = parent.side;
+			parent_link = this.parent.dbLinkEntity;
+		}
+
+
 		LedgerEntryLink ledgerEntryLink = new LedgerEntryLink(null, this.comment, this.link_type.name(),
-				this.tx, this.side, parent);
+				this.tx, this.side.toString(), parent_link);
 
 		this.dbLinkEntity = repo.save(ledgerEntryLink);
 
 		for (LedgerTreeEntry ledgerTreeEntry : ledgerTreeEntries) {
-			ledgerTreeEntry.commitTree(em, repo);
+			ledgerTreeEntry.commitTree(tx, repo);
 		}
 	}
 
 	/// 실제 entry를 저장함
-	private void commitEntry(EntityManager em, LedgerEntryRepository repo) {
+	private void commitEntry(Transaction tx, LedgerEntryRepository repo) {
 		for (LedgerEntry ledgerEntry : ledgerEntries) {
 			ledgerEntry.setEntryLink(this.dbLinkEntity);
 			repo.save(ledgerEntry);
 		}
+		for (LedgerTreeEntry ledgerTreeEntry : ledgerTreeEntries) {
+			ledgerTreeEntry.commitEntry(tx, repo);
+		}
 	}
 
-	// 짜피 class 내부에서는 proxy가 안돼서 Transactional 안됨. 그러므로 실질적으로 외부에서 딱 한번 Transactional이 실행됨
-	@Transactional(propagation = Propagation.REQUIRED, readOnly = false, rollbackFor = Exception.class)
-	public void commitDB(EntityManager em, LedgerEntryLinkRepository repo_link,
-						 LedgerEntryRepository repo_entry) {
-		this.commitTree(em, repo_link);
-		this.commitEntry(em, repo_entry);
+	private boolean validate(LedgerTreeEntry root) {
+		for (LedgerEntry ledgerEntry : ledgerEntries) {
+			if (!ledgerEntry.getSide().equals(root.side.toString())) return false;
+			if (!ledgerEntry.getTx().getId().equals(root.tx.getId())) return false;
+		}
 
 		for (LedgerTreeEntry ledgerTreeEntry : ledgerTreeEntries) {
-			ledgerTreeEntry.commitDB(em, repo_link, repo_entry);
+			if (!ledgerTreeEntry.validate(root)) {
+				return false;
+			}
 		}
+		return true;
+	}
+
+	///  바깥쪽에서 @Transactional 처리 필요. 최상위 root에서 호출돼야 함
+	public void commitDB(Transaction tx, LedgerEntryLinkRepository repo_link,
+						 LedgerEntryRepository repo_entry) {
+		if (this.parent != null) {
+			// throw: root가 아님.
+			return;
+		}
+
+		this.tx = tx;
+		if (!validate(this)) {
+			// throw는 일단 나중에 생성
+			return;
+		}
+
+		this.commitTree(tx, repo_link);
+		this.commitEntry(tx, repo_entry);
 	}
 }
