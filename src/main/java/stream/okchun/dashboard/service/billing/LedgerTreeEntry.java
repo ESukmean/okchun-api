@@ -13,6 +13,7 @@ import stream.okchun.dashboard.database.repos.billing.LedgerEntryRepository;
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 ///  DB에 넣을때 entry_link부터 넣어야 함. tree 구조를 draw한 뒤에 entry를 넣어줘야 함.
@@ -53,10 +54,11 @@ public class LedgerTreeEntry {
 	}
 
 	// 내부 생성시 사용
-	private LedgerTreeEntry(TransactionPrepare prep, @Nullable LedgerTreeEntry parent,
+	private LedgerTreeEntry(TransactionPrepare prep, @NonNull LedgerTreeEntry parent,
 							@NonNull LedgerTreeType link_type, @Nullable String comment) {
 		this.parent = parent;
 		this.prep = prep;
+		this.side = parent.side;
 		ledgerTreeEntries = new ArrayList<>();
 		ledgerEntries = new ArrayList<>();
 
@@ -79,15 +81,17 @@ public class LedgerTreeEntry {
 	/// 좌변 우변 검증용. 변의 총 합을 구함.
 	/// LedgerTreeEntity를 가지고 있는 Transaction에서 CreditRoot, DebitRoot가 있고, 각각 root를 가르킴
 	/// 위쪽에서 creditRoot.calculateSum() == debitRoot.calculateSum()로 검증 해야 함.
-	public BigDecimal calculateSum() {
-		BigDecimal sum = BigDecimal.ZERO;
+	public HashMap<String, BigDecimal> calculateSum(HashMap<String, BigDecimal> container) {
 		for (LedgerEntry ledgerEntry : ledgerEntries) {
-			sum = sum.add(ledgerEntry.getAmount());
+			String currency = ledgerEntry.getAccount().getCurrency();
+			if (!container.containsKey(currency)) {
+				container.put(currency, ledgerEntry.getAmount());
+			}
 		}
 		for (LedgerTreeEntry ledgerTreeEntry : ledgerTreeEntries) {
-			sum = sum.add(ledgerTreeEntry.calculateSum());
+			ledgerTreeEntry.calculateSum(container);
 		}
-		return sum;
+		return container;
 	}
 
 	///  Side-Effect style로 container에 모든 Ledger Entry 보관 (DB에 넣을 수 있도록)

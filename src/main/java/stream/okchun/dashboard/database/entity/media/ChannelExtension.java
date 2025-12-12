@@ -44,6 +44,7 @@ public class ChannelExtension {
 
 	@ColumnDefault("true")
 	@Column(name = "enabled", nullable = false)
+	@Builder.Default
 	private Boolean enabled = false;
 
 	@ColumnDefault("now()")
