@@ -43,8 +43,4 @@ public class LedgerEntryLink {
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JoinColumn(name = "ledger_link_parent")
 	private LedgerEntryLink ledgerLinkParent;
-
-	public static LedgerEntryLink of(LedgerTreeEntry entry, Transaction tx) {
-
-	}
 }
