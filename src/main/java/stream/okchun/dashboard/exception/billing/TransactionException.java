@@ -1,7 +1,7 @@
 package stream.okchun.dashboard.exception.billing;
 
 import lombok.Getter;
-import stream.okchun.dashboard.service.billing.LedgerTreeEntry;
+import stream.okchun.dashboard.service.billing.ledger.LedgerTreeEntry;
 
 import javax.annotation.Nullable;
 

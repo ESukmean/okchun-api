@@ -34,7 +34,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-restclient'
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
-    compileOnly 'org.projectlombok:lombok'
+    implementation 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     annotationProcessor 'org.projectlombok:lombok'
@@ -50,6 +50,8 @@ dependencies {
     implementation 'io.hypersistence:hypersistence-utils-hibernate-71:3.13.1'
     annotationProcessor "org.mapstruct:mapstruct-processor:1.6.3"
     implementation "org.mapstruct:mapstruct:1.6.3"
+    implementation "org.springframework.retry:spring-retry:2.0.12"
+    implementation "org.springframework.boot:spring-boot-starter-aspectj:4.0.0"
 
     annotationProcessor "org.mapstruct.extensions.spring:mapstruct-spring-annotations:2.0.0"
     implementation "org.mapstruct.extensions.spring:mapstruct-spring-extensions:2.0.0"

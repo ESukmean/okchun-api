@@ -1,4 +1,4 @@
-package stream.okchun.dashboard.service.billing;
+package stream.okchun.dashboard.service.billing.tx;
 
 public enum BillingAccountType {
     Member,

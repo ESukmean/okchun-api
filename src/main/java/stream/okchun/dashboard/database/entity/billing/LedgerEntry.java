@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import stream.okchun.dashboard.service.billing.ledger.LedgerEntryInterface;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -18,7 +19,7 @@ import java.time.Instant;
 @Table(name = "ledger_entry", schema = "billing")
 @NoArgsConstructor
 @AllArgsConstructor
-public class LedgerEntry {
+public class LedgerEntry implements LedgerEntryInterface {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ledger_id", nullable = false)
@@ -60,4 +61,9 @@ public class LedgerEntry {
 	@OnDelete(action = OnDeleteAction.RESTRICT)
 	@JoinColumn(name = "entry_link", nullable = false)
 	private LedgerEntryLink entryLink;
+
+	@Override
+	public String getCurrency() {
+		return this.account.getCurrency();
+	}
 }

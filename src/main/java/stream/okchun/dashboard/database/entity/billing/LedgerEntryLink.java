@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import stream.okchun.dashboard.service.billing.LedgerTreeEntry;
 
 @Getter
 @Setter

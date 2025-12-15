@@ -1,4 +1,4 @@
-package stream.okchun.dashboard.service.billing;
+package stream.okchun.dashboard.service.billing.tx;
 
 import jakarta.transaction.Transactional;
 import lombok.*;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BillingTransactionManager {
+public class BillingTransactionInstance {
 	private final BillingAccountRepository billingAccountRepository;
 	private final TransactionRepository transactionRepository;
 	private final TransactionPrepareRepository transactionPrepareRepository;
@@ -30,9 +30,9 @@ public class BillingTransactionManager {
 
 	// 사실 SUM 타입 하나만 있으면 진짜 깔끔하게 tree가 그려지는데... SUM 타입이 없어서 그게 안됨...
 	@Getter
-	private LedgerTreeEntry creditLedgerEntry;
+	private BillingTransactionLedger creditLedgerEntry;
 	@Getter
-	private LedgerTreeEntry debitLedgerEntry;
+	private BillingTransactionLedger debitLedgerEntry;
 
 	@Getter
 	@Setter
