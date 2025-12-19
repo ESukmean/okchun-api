@@ -8,10 +8,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class WebhookEventRepositoryImpl implements WebhookEventRepositoryCustom {
 
-    private final JPAQueryFactory queryFactory;
+	private final JPAQueryFactory queryFactory;
 
-    @Autowired
-    public WebhookEventRepositoryImpl(EntityManager entityManager) {
-        this.queryFactory = new JPAQueryFactory(entityManager);
-    }
+	@Autowired
+	public WebhookEventRepositoryImpl(EntityManager entityManager) {
+		this.queryFactory = new JPAQueryFactory(entityManager);
+	}
 }

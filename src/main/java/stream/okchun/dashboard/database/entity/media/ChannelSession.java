@@ -5,7 +5,6 @@ import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
-import org.hibernate.annotations.OnDeleteAction;
 import stream.okchun.dashboard.database.entity.auth.User;
 import stream.okchun.dashboard.database.entity.infra.Pool;
 

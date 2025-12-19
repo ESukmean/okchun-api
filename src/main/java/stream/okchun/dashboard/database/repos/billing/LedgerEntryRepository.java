@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 import stream.okchun.dashboard.database.entity.billing.LedgerEntry;
 
 @Repository
-public interface LedgerEntryRepository extends CrudRepository<@NonNull LedgerEntry, @NonNull Long>, LedgerEntryRepositoryCustom {
+public interface LedgerEntryRepository extends CrudRepository<@NonNull LedgerEntry, @NonNull Long>,
+		LedgerEntryRepositoryCustom {
 }

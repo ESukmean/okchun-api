@@ -8,10 +8,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class ApiKeyRepositoryImpl implements ApiKeyRepositoryCustom {
 
-    private final JPAQueryFactory queryFactory;
+	private final JPAQueryFactory queryFactory;
 
-    @Autowired
-    public ApiKeyRepositoryImpl(EntityManager entityManager) {
-        this.queryFactory = new JPAQueryFactory(entityManager);
-    }
+	@Autowired
+	public ApiKeyRepositoryImpl(EntityManager entityManager) {
+		this.queryFactory = new JPAQueryFactory(entityManager);
+	}
 }

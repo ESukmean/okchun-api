@@ -8,10 +8,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class PoolReportRepositoryImpl implements PoolReportRepositoryCustom {
 
-    private final JPAQueryFactory queryFactory;
+	private final JPAQueryFactory queryFactory;
 
-    @Autowired
-    public PoolReportRepositoryImpl(EntityManager entityManager) {
-        this.queryFactory = new JPAQueryFactory(entityManager);
-    }
+	@Autowired
+	public PoolReportRepositoryImpl(EntityManager entityManager) {
+		this.queryFactory = new JPAQueryFactory(entityManager);
+	}
 }

@@ -12,6 +12,7 @@ public class LoginException extends OkchunSuperException {
 		return new LoginException(HttpStatus.BAD_REQUEST, "ACC_NO_FOUND",
 				OkchunSuperException.EMPTY_PARAM);
 	}
+
 	public static LoginException PASSWORD_INCORRECT() {
 		return new LoginException(HttpStatus.BAD_REQUEST, "ACC_PASSWORD_INCORRECT",
 				OkchunSuperException.EMPTY_PARAM);

@@ -7,11 +7,11 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public record LoginResponse(
-	long userId,
-	String name,
-    TimeZone timezone,
-	Locale locale,
-	List<MyOrganizationInfo> organizations
+		long userId,
+		String name,
+		TimeZone timezone,
+		Locale locale,
+		List<MyOrganizationInfo> organizations
 ) {
 	public static LoginResponse of(long userId, String name, TimeZone timezone, Locale locale,
 								   List<OrganizationMember> organizations) {

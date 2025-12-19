@@ -243,7 +243,6 @@ Body example:
 }
 }
 
-
 api_token is validated against a server/pool config table.
 
 If valid & pool_id/server_id match, update last-known status and usage counters.
@@ -273,7 +272,6 @@ Body:
 "default_pool_selection": "auto"  // auto/manual
 }
 }
-
 
 GET /v1/organizations/{org_id}/channels?search=&state=&cursor=
 List/search channels (state active|archived).

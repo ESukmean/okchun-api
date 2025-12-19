@@ -8,10 +8,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class ChannelSessionRepositoryImpl implements ChannelSessionRepositoryCustom {
 
-    private final JPAQueryFactory queryFactory;
+	private final JPAQueryFactory queryFactory;
 
-    @Autowired
-    public ChannelSessionRepositoryImpl(EntityManager entityManager) {
-        this.queryFactory = new JPAQueryFactory(entityManager);
-    }
+	@Autowired
+	public ChannelSessionRepositoryImpl(EntityManager entityManager) {
+		this.queryFactory = new JPAQueryFactory(entityManager);
+	}
 }

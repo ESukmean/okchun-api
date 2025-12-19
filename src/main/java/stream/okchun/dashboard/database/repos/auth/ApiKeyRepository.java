@@ -7,9 +7,10 @@ import org.springframework.stereotype.Repository;
 import stream.okchun.dashboard.database.entity.auth.ApiKey;
 
 @Repository
-public interface ApiKeyRepository extends CrudRepository<@NonNull ApiKey, @NonNull Long>, ApiKeyRepositoryCustom {
+public interface ApiKeyRepository extends CrudRepository<@NonNull ApiKey, @NonNull Long>,
+		ApiKeyRepositoryCustom {
 	boolean existsByKey(String key);
 
-	@EntityGraph(attributePaths = { "org" })
+	@EntityGraph(attributePaths = {"org"})
 	ApiKey findByKey(String key);
 }

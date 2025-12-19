@@ -11,6 +11,7 @@ public class ApiKeyException extends OkchunSuperException {
 	public static ApiKeyException NO_APIKEY_PROVIDED() {
 		return new ApiKeyException(HttpStatus.FORBIDDEN, "API_NO_APIKEY_PROVIDED", null);
 	}
+
 	public static ApiKeyException APIKEY_EXPIRED_OR_UNFOUND() {
 		return new ApiKeyException(HttpStatus.BAD_REQUEST, "API_KEY_EXPIRED_OR_UNFOUND", null);
 	}

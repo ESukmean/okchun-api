@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 public record CreateApiKeyRequest(
-    String name,
-    List<String> scopes,
-    Optional<OffsetDateTime> expiresAt
-) {}
+		String name,
+		List<String> scopes,
+		Optional<OffsetDateTime> expiresAt
+) {
+}

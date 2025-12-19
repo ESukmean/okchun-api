@@ -11,17 +11,21 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
+import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.annotation.JsonNaming;
-
-import java.math.BigDecimal;
 
 @Service
 @Primary
 public class NowPayment implements PaymentGateway {
+	private static final ObjectMapper mapper = new ObjectMapper();
 	private final RestClient httpClient = RestClient.create();
 	@Value("${okchun.payment.success_url:https://okchun.esukmean.com/billing/pg/success?order_id={ORDER_ID}}")
 	private String SUCCESS_URL;
+	@Value("${okchun.payment.nowpayment.apikey}")
+	private String NOWPAYMENT_API_KEY;
+
 
 	@Retryable(maxAttempts = 2, backoff = @Backoff(delay = 100))
 	public InvoiceCreatedResult createInvoice(@NonNull String currency, long amount,
@@ -31,16 +35,28 @@ public class NowPayment implements PaymentGateway {
 			success_url = SUCCESS_URL.replace("{ORDER_ID}", order_id);
 		}
 
-		var req = httpClient.post()
-				.uri("https://api.nowpayments.io/v1/invoice")
-				.header("x-api-key", "Z8WB86B-E61428S-P94H0ZN-1VKRQYR")
-				.body(new invoiceCreation(amount, currency, order_id, order_description, success_url, true,
-						true))
-				.contentType(MediaType.APPLICATION_JSON)
-				.retrieve()
-				.body(InvoiceCreated.class);
+		try {
+			var req_log = httpClient.post()
+					.uri("https://api.nowpayments.io/v1/invoice")
+					.header("x-api-key", NOWPAYMENT_API_KEY)
+					.body(new invoiceCreation(amount, currency, order_id, order_description, success_url,
+							true,
+							true))
+					.contentType(MediaType.APPLICATION_JSON)
+					.retrieve()
+					.body(String.class);
 
-		return new InvoiceCreatedResult(req.id(), req.orderId(), req.invoiceUrl());
+			var req = mapper.readValue(req_log, InvoiceCreated.class);
+			return new InvoiceCreatedResult(true, "nowpay", req.id(), req.orderId(), req.invoiceUrl(),
+					req_log);
+		} catch (RestClientResponseException ex) {
+			return new InvoiceCreatedResult(false, "nowpay", null, order_id, null, ex.toString());
+		}
+	}
+
+	@Override
+	public int getPGNumber() {
+		return 1;
 	}
 }
 
@@ -52,7 +68,9 @@ record invoiceCreation(
 		String success_url,
 		boolean is_fixed_rate,
 		boolean is_fee_paid_by_user
-) {}
+) {
+}
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 record InvoiceCreated(
@@ -137,9 +155,12 @@ record InvoiceCreated(
 	 */
 }
 
-/** Nested object: redirectData.redirect_url */
+/**
+ * Nested object: redirectData.redirect_url
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 record RedirectData(
 		String redirectUrl
-) {}
+) {
+}

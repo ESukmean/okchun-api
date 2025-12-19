@@ -8,10 +8,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class BillingInvoiceRepositoryImpl implements BillingInvoiceRepositoryCustom {
 
-    private final JPAQueryFactory queryFactory;
+	private final JPAQueryFactory queryFactory;
 
-    @Autowired
-    public BillingInvoiceRepositoryImpl(EntityManager entityManager) {
-        this.queryFactory = new JPAQueryFactory(entityManager);
-    }
+	@Autowired
+	public BillingInvoiceRepositoryImpl(EntityManager entityManager) {
+		this.queryFactory = new JPAQueryFactory(entityManager);
+	}
 }

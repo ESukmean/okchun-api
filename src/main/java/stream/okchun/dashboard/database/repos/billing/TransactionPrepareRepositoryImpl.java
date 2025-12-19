@@ -8,10 +8,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class TransactionPrepareRepositoryImpl implements TransactionPrepareRepositoryCustom {
 
-    private final JPAQueryFactory queryFactory;
+	private final JPAQueryFactory queryFactory;
 
-    @Autowired
-    public TransactionPrepareRepositoryImpl(EntityManager entityManager) {
-        this.queryFactory = new JPAQueryFactory(entityManager);
-    }
+	@Autowired
+	public TransactionPrepareRepositoryImpl(EntityManager entityManager) {
+		this.queryFactory = new JPAQueryFactory(entityManager);
+	}
 }

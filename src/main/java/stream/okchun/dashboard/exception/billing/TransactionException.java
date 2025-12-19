@@ -30,15 +30,23 @@ public class TransactionException extends RuntimeException {
 																	LedgerTreeEntry credit) {
 		return new TransactionException("CREDIT_DEBIT_AMOUNT_MISMATCH", txId, log, debit, credit);
 	}
+
 	public static TransactionException NO_MAIN_CURRENCY_EXIST(String log,
-																	@Nullable Long txId,
-																	LedgerTreeEntry debit,
-																	LedgerTreeEntry credit) {
+															  @Nullable Long txId,
+															  LedgerTreeEntry debit,
+															  LedgerTreeEntry credit) {
 		return new TransactionException("NO_MAIN_CURRENCY_EXIST", txId, log, debit, credit);
 	}
+
 	public static TransactionException DB_COMMIT_FAILED(String log, @Nullable Long txId,
 														LedgerTreeEntry debit,
 														LedgerTreeEntry credit) {
 		return new TransactionException("DB_COMMIT_FAILED", txId, log, debit, credit);
+	}
+
+	public static TransactionException ALREADY_COMMITED(String log, @Nullable Long txId,
+														LedgerTreeEntry debit,
+														LedgerTreeEntry credit) {
+		throw new TransactionException("ALREADY_COMMITED", txId, log, debit, credit);
 	}
 }

@@ -10,7 +10,6 @@ import stream.okchun.dashboard.database.entity.auth.ApiKey;
 import stream.okchun.dashboard.database.entity.auth.ApiKeySubjectType;
 import stream.okchun.dashboard.database.entity.org.Organization;
 import stream.okchun.dashboard.database.repos.auth.ApiKeyRepository;
-import stream.okchun.dashboard.dto.account.LoginResponse;
 import stream.okchun.dashboard.exception.auth.ApiKeyException;
 import stream.okchun.dashboard.exception.auth.LoginException;
 
@@ -23,7 +22,7 @@ public class ApiKeyService {
 	private final ApiKeyRepository apiKeyRepository;
 
 	public ApiKey createApiKey(Organization org, ApiKeySubjectType type, long subjet_ref, List<String> scope,
-							   String note){
+							   String note) {
 		String apiKey = "";
 		do {
 			apiKey = generateApiKey();
@@ -34,7 +33,22 @@ public class ApiKeyService {
 		return apiKeyRepository.save(key);
 	}
 
-	public ApiKey getHttpRequestApiKey(){
+	private String generateApiKey() {
+		String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_";
+		StringBuilder salt = new StringBuilder();
+		Random rnd = new Random();
+		while (salt.length() < 48) { // length of the random string.
+			int index = (int) (rnd.nextFloat() * SALTCHARS.length());
+			salt.append(SALTCHARS.charAt(index));
+		}
+		return salt.toString();
+	}
+
+	public boolean checkIfKeyExists(String apiKey) {
+		return apiKeyRepository.existsByKey(apiKey);
+	}
+
+	public ApiKey getHttpRequestApiKey() {
 		RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
 		if (requestAttributes instanceof ServletRequestAttributes) {
 			HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
@@ -51,19 +65,5 @@ public class ApiKeyService {
 			return api_fetch;
 		}
 		throw LoginException.NOT_LOGGED_IN();
-	}
-
-	private String generateApiKey() {
-		String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_";
-		StringBuilder salt = new StringBuilder();
-		Random rnd = new Random();
-		while (salt.length() < 48) { // length of the random string.
-			int index = (int) (rnd.nextFloat() * SALTCHARS.length());
-			salt.append(SALTCHARS.charAt(index));
-		}
-		return salt.toString();
-	}
-	public boolean checkIfKeyExists(String apiKey){
-		return apiKeyRepository.existsByKey(apiKey);
 	}
 }

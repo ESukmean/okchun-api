@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 
 public interface LedgerEntryInterface {
 	BigDecimal getAmount();
+
 	String getCurrency();
+
 	String getSide();
 }

@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 import stream.okchun.dashboard.database.entity.billing.BillingInvoice;
 
 @Repository
-public interface BillingInvoiceRepository extends CrudRepository<@NonNull BillingInvoice, @NonNull Long>, BillingInvoiceRepositoryCustom {
+public interface BillingInvoiceRepository extends CrudRepository<@NonNull BillingInvoice, @NonNull Long>,
+		BillingInvoiceRepositoryCustom {
 }

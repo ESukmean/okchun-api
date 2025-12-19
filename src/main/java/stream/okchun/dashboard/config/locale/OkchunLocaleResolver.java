@@ -10,7 +10,10 @@ public class OkchunLocaleResolver extends AcceptHeaderLocaleResolver {
 	@Override
 	public Locale resolveLocale(HttpServletRequest request) {
 		var locale_cookie = request.getCookies() == null ? null :
-				Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equals("locale")).findFirst().orElse(null);
+				Arrays.stream(request.getCookies())
+						.filter(cookie -> cookie.getName().equals("locale"))
+						.findFirst()
+						.orElse(null);
 
 		if (locale_cookie != null) {
 			var locale = Locale.of(locale_cookie.getValue());

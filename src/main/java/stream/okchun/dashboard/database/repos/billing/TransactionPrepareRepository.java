@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 import stream.okchun.dashboard.database.entity.billing.TransactionPrepare;
 
 @Repository
-public interface TransactionPrepareRepository extends CrudRepository<@NonNull TransactionPrepare, @NonNull Long>, TransactionPrepareRepositoryCustom {
+public interface TransactionPrepareRepository extends
+		CrudRepository<@NonNull TransactionPrepare, @NonNull Long>, TransactionPrepareRepositoryCustom {
 }

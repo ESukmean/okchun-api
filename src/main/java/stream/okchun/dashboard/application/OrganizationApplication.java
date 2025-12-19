@@ -9,7 +9,6 @@ import stream.okchun.dashboard.database.entity.auth.ApiKeySubjectType;
 import stream.okchun.dashboard.database.entity.auth.User;
 import stream.okchun.dashboard.database.entity.media.ChannelStateType;
 import stream.okchun.dashboard.database.entity.org.OrganizationMemberRole;
-import stream.okchun.dashboard.dto.account.MyOrganizationInfo;
 import stream.okchun.dashboard.dto.channel.ChannelResponse;
 import stream.okchun.dashboard.dto.organization.DetailedOrganizationInfo;
 import stream.okchun.dashboard.exception.OkchunSuperException;
@@ -47,6 +46,7 @@ public class OrganizationApplication {
 	public List<ChannelResponse> listChannelsByApiKey(ApiKey apiKey, String search, ChannelStateType state,
 													  Integer cursor) {
 		var org = apiKey.getOrg();
-		return channelService.listChannels(org.getId(), search, state, cursor).stream().map(ChannelResponse::of).toList();
+		return channelService.listChannels(org.getId(), search, state, cursor).stream().map(
+				ChannelResponse::of).toList();
 	}
 }

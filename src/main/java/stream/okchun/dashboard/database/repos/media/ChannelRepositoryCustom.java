@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface ChannelRepositoryCustom {
 	@EntityGraph(attributePaths = {"latest_session"})
-	List<Channel> searchAllByOrg(@NonNull Long org_id, @Nullable String name, @Nullable ChannelStateType state,
+	List<Channel> searchAllByOrg(@NonNull Long org_id, @Nullable String name,
+								 @Nullable ChannelStateType state,
 								 @Nullable Integer cursor);
 }

@@ -8,11 +8,11 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 public record DetailedOrganizationInfo(
-	String org_id,
-    String name,
-    String defaultRegion,
-    OffsetDateTime createdAt,
-	@Nullable List<Channel> currentChannels
+		String org_id,
+		String name,
+		String defaultRegion,
+		OffsetDateTime createdAt,
+		@Nullable List<Channel> currentChannels
 ) {
 	public static DetailedOrganizationInfo from(Organization org, List<Channel> currentChannels) {
 		return new DetailedOrganizationInfo(org.getOrgId(), org.getName(), org.getDefaultRegion(),

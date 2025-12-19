@@ -1,11 +1,9 @@
 package stream.okchun.dashboard.database.entity.billing;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import stream.okchun.dashboard.service.billing.ledger.LedgerEntryInterface;
@@ -19,12 +17,15 @@ import java.time.Instant;
 @Table(name = "ledger_entry", schema = "billing")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@DynamicInsert
 public class LedgerEntry implements LedgerEntryInterface {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ledger_id", nullable = false)
 	private Long id;
 
+	/// TX는 자동으로 부여됩니다.
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@OnDelete(action = OnDeleteAction.RESTRICT)
 	@JoinColumn(name = "tx_id", nullable = false)
@@ -65,5 +66,10 @@ public class LedgerEntry implements LedgerEntryInterface {
 	@Override
 	public String getCurrency() {
 		return this.account.getCurrency();
+	}
+
+	@PrePersist
+	public void prePersist() {
+		this.createdAt = Instant.now();
 	}
 }

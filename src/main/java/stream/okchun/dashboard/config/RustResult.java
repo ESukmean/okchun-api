@@ -36,10 +36,6 @@ public class RustResult<T> {
 		}
 	}
 
-	public boolean isOk() {
-		return exception == null;
-	}
-
 	public boolean isErr() {
 		return exception != null;
 	}
@@ -53,6 +49,10 @@ public class RustResult<T> {
 
 	public T getOrDefault(T defaultValue) {
 		return isOk() ? data : defaultValue;
+	}
+
+	public boolean isOk() {
+		return exception == null;
 	}
 
 	public Exception getException() {

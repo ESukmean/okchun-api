@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 import stream.okchun.dashboard.database.entity.billing.WebhookEvent;
 
 @Repository
-public interface WebhookEventRepository extends CrudRepository<@NonNull WebhookEvent, @NonNull Long>, WebhookEventRepositoryCustom {
+public interface WebhookEventRepository extends CrudRepository<@NonNull WebhookEvent, @NonNull Long>,
+		WebhookEventRepositoryCustom {
 }

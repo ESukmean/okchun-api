@@ -15,13 +15,13 @@ import java.util.List;
 @Repository
 public class ChannelRepositoryImpl implements ChannelRepositoryCustom {
 	private final EntityManager em;
-    private final JPAQueryFactory queryFactory;
+	private final JPAQueryFactory queryFactory;
 
-    @Autowired
-    public ChannelRepositoryImpl(EntityManager entityManager) {
+	@Autowired
+	public ChannelRepositoryImpl(EntityManager entityManager) {
 		this.em = entityManager;
-        this.queryFactory = new JPAQueryFactory(entityManager);
-    }
+		this.queryFactory = new JPAQueryFactory(entityManager);
+	}
 
 	@Override
 	public List<Channel> searchAllByOrg(@NonNull Long org_id, @Nullable String name,

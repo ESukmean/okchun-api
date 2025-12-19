@@ -3,8 +3,6 @@ package stream.okchun.dashboard.service.billing.ledger;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import stream.okchun.dashboard.database.entity.billing.LedgerEntry;
-import stream.okchun.dashboard.database.entity.billing.TransactionPrepare;
 
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
@@ -43,7 +41,7 @@ public class LedgerTreeEntry<T extends LedgerEntryInterface> {
 
 	// 내부 생성시 사용
 	protected LedgerTreeEntry(@NonNull LedgerTreeEntry<T> parent,
-							@NonNull LedgerTreeType link_type, @Nullable String comment) {
+							  @NonNull LedgerTreeType link_type, @Nullable String comment) {
 		this.parent = parent;
 		this.side = parent.side;
 		ledgerTreeEntries = new ArrayList<>();

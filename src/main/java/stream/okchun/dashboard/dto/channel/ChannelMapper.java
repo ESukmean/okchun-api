@@ -12,12 +12,12 @@ public interface ChannelMapper {
 
 	ChannelMapper INSTANCE = Mappers.getMapper(ChannelMapper.class);
 
-	@Mapping(source = "id", target = "session_id")
-	@Mapping(source = "latest_session", target = "session", qualifiedByName = "channelSessionResponseOf")
-	ChannelResponse toResponse(Channel channel);
-
 	@Named("channelSessionResponseOf")
 	static ChannelSessionResponse channelSessionResponseOf(ChannelSession session) {
 		return ChannelSessionResponse.of(session);
 	}
+
+	@Mapping(source = "id", target = "session_id")
+	@Mapping(source = "latest_session", target = "session", qualifiedByName = "channelSessionResponseOf")
+	ChannelResponse toResponse(Channel channel);
 }

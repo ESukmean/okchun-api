@@ -11,5 +11,5 @@ public interface OrganizationMemberRepository extends CrudRepository<@NonNull Or
 		@NonNull Long>, OrganizationMemberRepositoryCustom {
 
 	@EntityGraph(attributePaths = {"org", "apiKey"})
-	public List<OrganizationMember> findAllByUserId(@NonNull Long userId);
+	List<OrganizationMember> findAllByUserId(@NonNull Long userId);
 }

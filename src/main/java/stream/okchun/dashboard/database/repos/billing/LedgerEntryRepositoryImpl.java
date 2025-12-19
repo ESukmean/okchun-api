@@ -8,10 +8,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class LedgerEntryRepositoryImpl implements LedgerEntryRepositoryCustom {
 
-    private final JPAQueryFactory queryFactory;
+	private final JPAQueryFactory queryFactory;
 
-    @Autowired
-    public LedgerEntryRepositoryImpl(EntityManager entityManager) {
-        this.queryFactory = new JPAQueryFactory(entityManager);
-    }
+	@Autowired
+	public LedgerEntryRepositoryImpl(EntityManager entityManager) {
+		this.queryFactory = new JPAQueryFactory(entityManager);
+	}
 }

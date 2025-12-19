@@ -8,6 +8,7 @@ import stream.okchun.dashboard.database.entity.billing.LedgerEntry;
 import stream.okchun.dashboard.database.entity.billing.LedgerEntryLink;
 import stream.okchun.dashboard.database.entity.billing.Transaction;
 import stream.okchun.dashboard.database.entity.billing.TransactionPrepare;
+import stream.okchun.dashboard.database.repos.billing.BillingAccountRepository;
 import stream.okchun.dashboard.database.repos.billing.LedgerEntryLinkRepository;
 import stream.okchun.dashboard.database.repos.billing.LedgerEntryRepository;
 import stream.okchun.dashboard.service.billing.ledger.LedgerSide;
@@ -32,7 +33,8 @@ public class BillingTransactionLedger extends LedgerTreeEntry<LedgerEntry> {
 	}
 
 	protected BillingTransactionLedger(TransactionPrepare prep, @NonNull LedgerTreeEntry parent,
-									   @NonNull LedgerTreeType link_type, @javax.annotation.Nullable String comment) {
+									   @NonNull LedgerTreeType link_type,
+									   @javax.annotation.Nullable String comment) {
 		super(parent, parent.getSide());
 
 		this.link_type = link_type;
@@ -48,13 +50,29 @@ public class BillingTransactionLedger extends LedgerTreeEntry<LedgerEntry> {
 	}
 
 	/// 실제 entry를 저장함
-	private void commitEntry(Transaction tx, LedgerEntryRepository repo) {
+	private void commitEntry(LedgerEntryRepository repo,
+							 BillingAccountRepository repo_account) {
 		for (LedgerEntry ledgerEntry : super.ledgerEntries) {
 			ledgerEntry.setEntryLink(this.dbLinkEntity);
+
+			var account = repo_account.findByIdForUpdate(ledgerEntry.getAccount().getId());
+			var accountBalance_before = account.getBalance();
+			var accountBalance_after = switch (this.dbLinkEntity.getSide()) {
+				case "C" -> accountBalance_before.subtract(ledgerEntry.getAmount());
+				case "D" -> accountBalance_before.add(ledgerEntry.getAmount());
+				default -> throw new IllegalStateException(
+						"Unexpected value: " + this.dbLinkEntity.getSide());
+			};
+
+			account.setBalance(accountBalance_after);
+
+			ledgerEntry.setAccountBalanceBefore(accountBalance_before);
+			ledgerEntry.setAccountBalanceAfter(accountBalance_after);
+
 			repo.save(ledgerEntry);
 		}
 		for (LedgerTreeEntry ledgerTreeEntry : (ledgerTreeEntries)) {
-			((BillingTransactionLedger)ledgerTreeEntry).commitEntry(tx, repo);
+			((BillingTransactionLedger) ledgerTreeEntry).commitEntry(repo, repo_account);
 		}
 	}
 
@@ -76,38 +94,33 @@ public class BillingTransactionLedger extends LedgerTreeEntry<LedgerEntry> {
 		this.dbLinkEntity = repo.save(ledgerEntryLink);
 
 		for (LedgerTreeEntry ledgerTreeEntry : ledgerTreeEntries) {
-			((BillingTransactionLedger)ledgerTreeEntry).commitTree(tx, repo);
+			((BillingTransactionLedger) ledgerTreeEntry).commitTree(tx, repo);
 		}
 	}
 
 	///  바깥쪽에서 @Transactional 처리 필요. 최상위 root에서 호출돼야 함
 	public void commitDB(Transaction tx, LedgerEntryLinkRepository repo_link,
-						 LedgerEntryRepository repo_entry) {
+						 LedgerEntryRepository repo_entry, BillingAccountRepository repo_account) {
 		if (this.parent != null) {
 			// throw: root가 아님.
 			return;
 		}
 
 		this.tx = tx;
-		if (isInvalid(this)) {
-			// throw는 일단 나중에 생성
-			return;
-		}
+		setLedgerFlags(this);
 
 		this.commitTree(tx, repo_link);
-		this.commitEntry(tx, repo_entry);
+		this.commitEntry(repo_entry, repo_account);
 	}
 
-	protected boolean isInvalid(BillingTransactionLedger root) {
+	protected boolean setLedgerFlags(BillingTransactionLedger root) {
 		for (LedgerEntry ledgerEntry : ledgerEntries) {
-			if (!ledgerEntry.getSide().equals(root.side.toString())) return false;
-			if (!ledgerEntry.getTx().getId().equals(root.tx.getId())) return false;
+			ledgerEntry.setTx(this.tx);
+			ledgerEntry.setSide(this.side.toString());
 		}
 
 		for (LedgerTreeEntry ledgerTreeEntry : ledgerTreeEntries) {
-			if (!((BillingTransactionLedger)ledgerTreeEntry).isInvalid(root)) {
-				return false;
-			}
+			((BillingTransactionLedger) ledgerTreeEntry).setLedgerFlags(root);
 		}
 		return true;
 	}

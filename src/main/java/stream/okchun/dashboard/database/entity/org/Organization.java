@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.processing.Pattern;
 import stream.okchun.dashboard.database.entity.auth.User;
 
 import java.time.OffsetDateTime;

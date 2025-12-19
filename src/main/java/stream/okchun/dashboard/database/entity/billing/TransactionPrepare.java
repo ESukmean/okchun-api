@@ -2,7 +2,6 @@ package stream.okchun.dashboard.database.entity.billing;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.Transaction;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -28,10 +27,10 @@ public class TransactionPrepare {
 	@Column(name = "tx_name", nullable = false)
 	private String txName;
 
-	@Column(name = "tx_prep_log", length = Integer.MAX_VALUE)
-	private String txPrepLog;
+	@Column(name = "tx_comment", length = Integer.MAX_VALUE)
+	private String txComment;
 
-	@Column(name = "status", nullable = false, length = 3)
+	@Column(name = "status", nullable = false, length = 16)
 	private String status;
 
 	@ColumnDefault("now()")

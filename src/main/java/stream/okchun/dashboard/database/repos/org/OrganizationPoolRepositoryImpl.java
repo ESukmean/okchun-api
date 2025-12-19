@@ -8,10 +8,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class OrganizationPoolRepositoryImpl implements OrganizationPoolRepositoryCustom {
 
-    private final JPAQueryFactory queryFactory;
+	private final JPAQueryFactory queryFactory;
 
-    @Autowired
-    public OrganizationPoolRepositoryImpl(EntityManager entityManager) {
-        this.queryFactory = new JPAQueryFactory(entityManager);
-    }
+	@Autowired
+	public OrganizationPoolRepositoryImpl(EntityManager entityManager) {
+		this.queryFactory = new JPAQueryFactory(entityManager);
+	}
 }

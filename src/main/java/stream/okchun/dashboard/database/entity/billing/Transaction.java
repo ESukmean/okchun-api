@@ -46,8 +46,8 @@ public class Transaction {
 	@Column(name = "comment_system")
 	private String commentSystem;
 
-	public static Transaction of (TransactionPrepare prep, String currency, BigDecimal amountTotal,
-								  @Nullable Transaction relatedTx, @Nullable String comment) {
+	public static Transaction of(TransactionPrepare prep, String currency, BigDecimal amountTotal,
+								 @Nullable Transaction relatedTx, @Nullable String comment) {
 		return new Transaction(prep.getId(), currency, amountTotal, prep.getIssuedBy(),
 				relatedTx, null, comment);
 	}

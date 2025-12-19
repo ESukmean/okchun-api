@@ -8,9 +8,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.function.BiConsumer;
 
 @Slf4j
@@ -28,8 +25,8 @@ public class ExceptionLogger {
 		RequestAttributes ctx = RequestContextHolder.currentRequestAttributes();
 		String trace_id = (String) ctx.getAttribute("REQUEST_TRACE_ID", 0);
 
-		log.error("server_id = {}, message = {}, data = {}, stack = {}, req = {}",  trace_id, ex.getMessage(),
-				data,	ex,
+		log.error("server_id = {}, message = {}, data = {}, stack = {}, req = {}", trace_id, ex.getMessage(),
+				data, ex,
 				req);
 	}
 }

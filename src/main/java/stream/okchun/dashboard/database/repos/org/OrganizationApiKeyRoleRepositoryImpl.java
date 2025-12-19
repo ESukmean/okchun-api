@@ -8,10 +8,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class OrganizationApiKeyRoleRepositoryImpl implements OrganizationApiKeyRoleRepositoryCustom {
 
-    private final JPAQueryFactory queryFactory;
+	private final JPAQueryFactory queryFactory;
 
-    @Autowired
-    public OrganizationApiKeyRoleRepositoryImpl(EntityManager entityManager) {
-        this.queryFactory = new JPAQueryFactory(entityManager);
-    }
+	@Autowired
+	public OrganizationApiKeyRoleRepositoryImpl(EntityManager entityManager) {
+		this.queryFactory = new JPAQueryFactory(entityManager);
+	}
 }
