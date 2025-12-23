@@ -4,8 +4,12 @@ import java.math.BigDecimal;
 
 public record CreditBalanceResponse(
 		BigDecimal balance,
-		String currencyCode,
-		BigDecimal lowBalanceNotificationThreshold,
-		String estimatedRemaining
+		String currencyCode
 ) {
+	public static CreditBalanceResponse of(
+			BigDecimal balance,
+			String currencyCode
+	) {
+		return new CreditBalanceResponse(balance, currencyCode);
+	}
 }

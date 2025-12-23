@@ -27,12 +27,12 @@ public class BillingTransactionInstance {
 	private final CurrencyExchangeService exchangeService;
 	@Getter
 	private final TransactionPrepare prep;
-	private Transaction transaction;
 	// 사실 SUM 타입 하나만 있으면 진짜 깔끔하게 tree가 그려지는데... SUM 타입이 없어서 그게 안됨...
 	@Getter
 	private final BillingTransactionLedger creditLedgerEntry;
 	@Getter
 	private final BillingTransactionLedger debitLedgerEntry;
+	private Transaction transaction;
 	@Getter
 	@Setter
 	private String mainCurrency;

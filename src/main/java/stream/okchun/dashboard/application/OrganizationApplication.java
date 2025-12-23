@@ -1,20 +1,26 @@
 package stream.okchun.dashboard.application;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import stream.okchun.dashboard.database.entity.auth.ApiKey;
 import stream.okchun.dashboard.database.entity.auth.ApiKeySubjectType;
 import stream.okchun.dashboard.database.entity.auth.User;
 import stream.okchun.dashboard.database.entity.media.ChannelStateType;
 import stream.okchun.dashboard.database.entity.org.OrganizationMemberRole;
+import stream.okchun.dashboard.dto.billing.CreditBalanceResponse;
+import stream.okchun.dashboard.dto.billing.TopupHistoryResponse;
 import stream.okchun.dashboard.dto.channel.ChannelResponse;
 import stream.okchun.dashboard.dto.organization.DetailedOrganizationInfo;
 import stream.okchun.dashboard.exception.OkchunSuperException;
 import stream.okchun.dashboard.service.ApiKeyService;
+import stream.okchun.dashboard.service.BillingService;
 import stream.okchun.dashboard.service.ChannelService;
 import stream.okchun.dashboard.service.OrganizationService;
+import stream.okchun.dashboard.service.billing.tx.BillingAccountType;
 
 import java.util.List;
 
@@ -23,6 +29,8 @@ import java.util.List;
 public class OrganizationApplication {
 	private final OrganizationService orgService;
 	private final ChannelService channelService;
+	private final BillingService billingService;
+
 	private final ApiKeyService apiKeyService;
 	private final EntityManager em;
 
@@ -48,5 +56,18 @@ public class OrganizationApplication {
 		var org = apiKey.getOrg();
 		return channelService.listChannels(org.getId(), search, state, cursor).stream().map(
 				ChannelResponse::of).toList();
+	}
+
+	public List<CreditBalanceResponse> getBalance(ApiKey apiKey) {
+		var org = apiKey.getOrg();
+		var billings = billingService.getBillingAccount(BillingAccountType.ORG, org.getId(), null);
+
+		return billings.stream().map(v -> CreditBalanceResponse.of(v.getBalance(), v.getCurrency())).toList();
+	}
+
+	public Page<TopupHistoryResponse> listTopUp(ApiKey apiKey, @Nullable Integer page) {
+		var histories = billingService.listBillingInvoice(apiKey.getOrg().getId(), page);
+
+		return histories.map(TopupHistoryResponse::from);
 	}
 }

@@ -1,7 +1,11 @@
 package stream.okchun.dashboard.service;
 
+import jakarta.annotation.Nullable;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import stream.okchun.dashboard.database.entity.auth.User;
 import stream.okchun.dashboard.database.entity.billing.BillingAccount;
@@ -10,6 +14,7 @@ import stream.okchun.dashboard.database.entity.billing.LedgerEntry;
 import stream.okchun.dashboard.database.entity.billing.TransactionPrepare;
 import stream.okchun.dashboard.database.entity.org.Organization;
 import stream.okchun.dashboard.database.repos.billing.*;
+import stream.okchun.dashboard.exception.billing.TransactionException;
 import stream.okchun.dashboard.service.billing.pg.InvoiceCreatedResult;
 import stream.okchun.dashboard.service.billing.pg.PaymentGateway;
 import stream.okchun.dashboard.service.billing.tx.BillingAccountType;
@@ -17,6 +22,7 @@ import stream.okchun.dashboard.service.billing.tx.BillingTransactionInstance;
 import stream.okchun.dashboard.service.billing.tx.TransactionType;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,8 +36,20 @@ public class BillingService {
 	private final BillingInvoiceRepository billingInvoiceRepository;
 	private final CurrencyExchangeService currencyExchangeService;
 
-	public BillingAccount getBillingAccount(BillingAccountType type, long account_ref_id, String currency) {
-		return billingAccountRepository.findByAccountTypeAndAccountRef(type.name(), account_ref_id);
+	public List<BillingAccount> getBillingAccount(BillingAccountType type, long account_ref_id,
+												  @Nullable String currency) {
+		if (currency == null) {
+			return billingAccountRepository.findAllByAccountTypeAndAccountRef(type.name(), account_ref_id);
+		}
+
+		return billingAccountRepository.findByAccountTypeAndAccountRefAndCurrency(type.name(), account_ref_id,
+				currency).map(List::of).orElse(List.of());
+	}
+
+	public Page<BillingInvoice> listBillingInvoice(long org_id, @Nullable Integer page) {
+		var pageReq = PageRequest.of(page == null ? 0 : page, 50, Sort.by(Sort.Order.desc(
+				"id")));
+		return billingInvoiceRepository.findAllByOrgId(org_id, pageReq);
 	}
 
 	public BillingAccount createBillingAccount(BillingAccountType type, long account_ref_id, String currency,
@@ -52,8 +70,7 @@ public class BillingService {
 				.user(user)
 				.status("START")
 				.txId(null)
-				.name(
-						invoiceName)
+				.name(invoiceName)
 				.totalPayAmount(BigDecimal.valueOf(amount))
 				.currency(currency)
 				.account(account)
@@ -105,31 +122,32 @@ public class BillingService {
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	public void invoicePaymentSuccess(long invoice_id) {
 		var invoice = this.billingInvoiceRepository.findById(invoice_id).orElseThrow(
-				() -> new RuntimeException("invoice not found"));
+				() -> TransactionException.INVOICE_NOT_FOUND("invoice not found id: " + invoice_id, null,
+						null, null));
 		var tx = getTransaction(invoice.getTxId());
 
-		var account_pg = billingAccountRepository.findByAccountTypeAndAccountRef("PG",
-				paymentGateway.getPGNumber());
-		var account_target = billingAccountRepository.findByAccountTypeAndAccountRef("ORG",
-				invoice.getAccount().getId());
+		var account_pg = billingAccountRepository.findByAccountTypeAndAccountRefAndCurrency("PG",
+				paymentGateway.getPGNumber(), invoice.getCurrency()).orElseThrow(
+				() -> TransactionException.NO_BILLING_ACCOUNT_FOUND("billing acc: PG /" + Long.toString(
+								paymentGateway.getPGNumber()) + invoice.getCurrency(), invoice.getTxId(), null,
+						null));
+		var account_target = billingAccountRepository.findByAccountTypeAndAccountRefAndCurrency("ORG",
+				invoice.getAccount().getId(), invoice.getCurrency()).orElseThrow(
+				() -> TransactionException.NO_BILLING_ACCOUNT_FOUND("billing acc: ORG /" + invoice.getAccount()
+								.getId() + invoice.getCurrency(), invoice.getTxId(), null,
+						null));
 
 
-		tx.getCreditLedgerEntry().addLedgerEntry(LedgerEntry.builder()
-				.account(account_pg)
+		tx.getCreditLedgerEntry().addLedgerEntry(LedgerEntry.builder().account(account_pg)
 //				.side("C")
-				.amount(invoice.getTotalPayAmount())
-				.comment("invoice - " + invoice_id)
-				.build());
+				.amount(invoice.getTotalPayAmount()).comment("invoice - " + invoice_id).build());
 
-		tx.getDebitLedgerEntry().addLedgerEntry(LedgerEntry.builder()
-				.account(account_target)
+		tx.getDebitLedgerEntry().addLedgerEntry(LedgerEntry.builder().account(account_target)
 //				.side("D")
-				.amount(invoice.getTotalPayAmount())
-				.comment("invoice - " + invoice_id)
-				.build());
+				.amount(invoice.getTotalPayAmount()).comment("invoice - " + invoice_id).build());
 
 		tx.commit();
-
+		invoice.setStatus("SUCCESS");
 	}
 
 	public BillingTransactionInstance getTransaction(long TxId) {

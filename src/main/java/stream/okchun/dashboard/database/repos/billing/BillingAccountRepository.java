@@ -10,10 +10,16 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import stream.okchun.dashboard.database.entity.billing.BillingAccount;
 
+import java.util.List;
+import java.util.Optional;
+
 @Repository
 public interface BillingAccountRepository extends CrudRepository<@NonNull BillingAccount, @NonNull Long>,
 		BillingAccountRepositoryCustom {
-	BillingAccount findByAccountTypeAndAccountRef(String AccountType, long AccountRef);
+	List<BillingAccount> findAllByAccountTypeAndAccountRef(String AccountType, long AccountRef);
+
+	Optional<BillingAccount> findByAccountTypeAndAccountRefAndCurrency(String AccountType, long AccountRef,
+																	   String currency);
 
 
 	@Lock(LockModeType.PESSIMISTIC_WRITE)

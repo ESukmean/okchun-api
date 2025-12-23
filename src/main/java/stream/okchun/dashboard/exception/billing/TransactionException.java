@@ -49,4 +49,15 @@ public class TransactionException extends RuntimeException {
 														LedgerTreeEntry credit) {
 		throw new TransactionException("ALREADY_COMMITED", txId, log, debit, credit);
 	}
+
+	public static TransactionException NO_BILLING_ACCOUNT_FOUND(String log, @Nullable Long txId,
+																LedgerTreeEntry debit,
+																LedgerTreeEntry credit) {
+		throw new TransactionException("NO_BILLING_ACCOUNT_FOUND", txId, log, debit, credit);
+	}
+
+	public static TransactionException INVOICE_NOT_FOUND(String log, @Nullable Long txId,
+														 LedgerTreeEntry debit, LedgerTreeEntry credit) {
+		throw new TransactionException("INVOICE_NOT_FOUND", txId, log, debit, credit);
+	}
 }
