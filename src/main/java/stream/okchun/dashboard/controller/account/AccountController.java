@@ -2,6 +2,7 @@ package stream.okchun.dashboard.controller.account;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import stream.okchun.dashboard.application.AccountApplication;
 import stream.okchun.dashboard.dto.GlobalResponse;
@@ -11,6 +12,8 @@ import stream.okchun.dashboard.dto.account.LoginResponse;
 import stream.okchun.dashboard.dto.account.RegisterRequest;
 import stream.okchun.dashboard.exception.auth.RegisterException;
 import stream.okchun.dashboard.service.AccountService;
+
+import java.util.TimeZone;
 
 @RestController
 @RequestMapping("/v1/account")
@@ -37,6 +40,13 @@ public class AccountController {
 		httpReq.getSession().setAttribute("user", login);
 
 		return new GlobalResponse<>(true, login);
+	}
+
+	@GetMapping("/reload")
+	public LoginResponse reload(HttpServletRequest httpReq) {
+		LoginResponse loginData = (LoginResponse) httpReq.getSession().getAttribute("user");
+
+		return application.reloadUserInfo(loginData.userId());
 	}
 
 	@PostMapping("/logout")

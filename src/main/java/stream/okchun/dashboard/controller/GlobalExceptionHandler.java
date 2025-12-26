@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
 
 		exceptionLogger.log(e, e.getStackTrace(), httpReq);
 
-		return new ResponseEntity(new GlobalResponse(false,
+		return new ResponseEntity<>(GlobalResponse.fail(
 				new GlobalErrorResponse(e.getMessage(), e.getLocalizedMessage(), e.getParams())),
 				e.getStatus());
 	}

@@ -2,8 +2,11 @@ package stream.okchun.dashboard.database.entity.infra;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.Remove;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import org.hibernate.type.SqlTypes;
 import stream.okchun.dashboard.database.entity.org.Organization;
 
@@ -58,12 +61,15 @@ public class Pool {
 	@Column(name = "updated_at", nullable = false)
 	private OffsetDateTime updatedAt;
 
-	/*
-	 TODO [Reverse Engineering] create field to map the 'visibility' column
-	 Available actions: Define target Java type | Uncomment as is | Remove column mapping
-	    @Column(name = "visibility", columnDefinition = "pool_visibility_type not null")
-	    private Object visibility;
-	*/
+	@Column(name = "deleted_at", nullable = false)
+	private OffsetDateTime deletedAt;
+
+
+	@Column(name = "visibility", columnDefinition = "pool_visibility_type not null")
+	@Enumerated
+	@JdbcType(PostgreSQLEnumJdbcType.class)
+	private PoolVisibility visibility;
+
 	/*
 	 TODO [Reverse Engineering] create field to map the 'status' column
 	 Available actions: Define target Java type | Uncomment as is | Remove column mapping

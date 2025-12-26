@@ -1,17 +1,28 @@
 package stream.okchun.dashboard.service;
 
+import jakarta.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import stream.okchun.dashboard.database.entity.infra.Pool;
+import stream.okchun.dashboard.database.entity.org.Organization;
+import stream.okchun.dashboard.database.repos.infra.PoolRepository;
+
+import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class PoolService {
+	private final PoolRepository poolRepository;
 
 	// Pools (admin/owner operations)
 	public Object createPool(Object body) {
 		return "Pool created";
 	}
 
-	public Object listPools(String ownerOrgId, String visibility, String region, String cursor) {
-		return "List of pools";
+	public List<Pool> listPools(@Nullable Organization org, @Nullable Long ownerOrgId, @Nullable String region,
+								@Nullable Long cursor) {
+		return poolRepository.listAllPoolByCondition(org == null ? null : org.getId(), ownerOrgId, region,
+				cursor);
 	}
 
 	public Object getPoolDetail(String poolId) {

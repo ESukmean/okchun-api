@@ -1,10 +1,22 @@
 package stream.okchun.dashboard.controller.pool;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import stream.okchun.dashboard.database.entity.auth.ApiKey;
+import stream.okchun.dashboard.database.entity.infra.Pool;
+import stream.okchun.dashboard.database.entity.org.Organization;
+import stream.okchun.dashboard.dto.GlobalResponse;
+import stream.okchun.dashboard.service.ApiKeyService;
+import stream.okchun.dashboard.service.PoolService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1")
+@RequiredArgsConstructor
 public class PoolController {
+	private final ApiKeyService apiKeyService;
+	private final PoolService poolService;
 
 	// Pools (admin/owner operations)
 	@PostMapping("/pools")
@@ -13,11 +25,20 @@ public class PoolController {
 	}
 
 	@GetMapping("/pools")
-	public String listPools(@RequestParam(required = false) String owner_org_id,
-							@RequestParam(required = false) String visibility,
-							@RequestParam(required = false) String region,
-							@RequestParam(required = false) String cursor) {
-		return "List of pools";
+	public List<Pool> listPools(@RequestParam(required = false) Long owner_org_id,
+											   @RequestParam(required = false) String region,
+											   @RequestParam(required = false) Long cursor) {
+		ApiKey apiKey = null;
+		try {
+			apiKey = apiKeyService.getHttpRequestApiKey();
+		} catch (Exception e) {}
+
+		Organization orgId = null;
+		if (apiKey != null) {
+			orgId = apiKey.getOrg();
+		}
+
+		return poolService.listPools(orgId, owner_org_id, region, cursor);
 	}
 
 	@GetMapping("/pools/{pool_id}")

@@ -41,6 +41,8 @@ public class OrganizationApplication {
 		var key = apiKeyService.createApiKey(org, ApiKeySubjectType.ORG, userId, List.of(), "");
 
 		orgService.addMember(org, user, key, OrganizationMemberRole.OWNER);
+		billingService.createBillingAccount(BillingAccountType.ORG, org.getId(), "USD", "");
+		
 		return key.getKey();
 	}
 
